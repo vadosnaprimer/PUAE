@@ -35,8 +35,9 @@ struct scsi_data_tape
 
 struct scsi_data
 {
-	int id;
-	int cmd_len;
+    int id;
+	void *privdata;
+    int cmd_len;
     uae_u8 *data;
     int data_len;
     int status;

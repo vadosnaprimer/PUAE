@@ -7,13 +7,12 @@
  * Copyright 1995-2001 Bernd Schmidt
  */
 
-#pragma once
 #ifndef OPTIONS_H
 #define OPTIONS_H
 
 #define UAEMAJOR 2
 #define UAEMINOR 8
-#define UAESUBREV 1
+#define UAESUBREV 2
 
 #include "uae_types.h"
 
@@ -166,7 +165,8 @@ struct uaedev_config_info {
 	int sectors;
 	int reserved;
 	int blocksize;
-	int controller;
+	int controller_type;
+	int controller_unit;
 	// zero if default
 	int pcyls, pheads, psecs;
 	int flags;
@@ -462,6 +462,7 @@ struct uae_prefs {
 	bool cs_dipagnus;
 	bool cs_agnusbltbusybug;
 	bool cs_ciatodbug;
+	bool cs_z3autoconfig;
 	int cs_hacks;
 
 	TCHAR romfile[MAX_DPATH];
@@ -472,9 +473,13 @@ struct uae_prefs {
 	TCHAR romextident[256];
 	TCHAR a2091romfile[MAX_DPATH];
 	TCHAR a2091romident[256];
+	TCHAR a2091romfile2[MAX_DPATH];
+	TCHAR a2091romident2[256];
 	bool a2091;
 	TCHAR a4091romfile[MAX_DPATH];
 	TCHAR a4091romident[256];
+	TCHAR a4091romfile2[MAX_DPATH];
+	TCHAR a4091romident2[256];
 	bool a4091;
 	TCHAR flashfile[MAX_DPATH];
 	TCHAR rtcfile[MAX_DPATH];
@@ -541,6 +546,7 @@ struct uae_prefs {
 	bool native_code;
 	bool uae_hide_autoconfig;
 	bool jit_direct_compatible_memory;
+	bool force_0x10000000_z3;
 
 	int mountitems;
 	struct uaedev_config_data mountconfig[MOUNT_CONFIG_SIZE];

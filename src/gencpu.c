@@ -205,6 +205,10 @@ static void addcycles_ce020 (int cycles, char *s)
 	count_cycles += cycles;
 	count_cycles_ce020 += cycles;
 }
+static void addcycles_ce020__1 (int cycles)
+{
+	addcycles_ce020 (cycles, NULL);
+}
 
 static void get_prefetch_020 (void)
 {
@@ -3547,12 +3551,14 @@ static void gen_opcode (unsigned long int opcode)
 			printf ("\t\tint frame = format >> 12;\n");
 			printf ("\t\tint offset = 8;\n");
 			printf ("\t\tnewsr = sr; newpc = pc;\n");
+			addcycles_ce020__1 (6);
 		    printf ("\t\tif (frame == 0x0) { m68k_areg (regs, 7) += offset; break; }\n");
 		    printf ("\t\telse if (frame == 0x8) { m68k_areg (regs, 7) += offset + 50; break; }\n");
 		    printf ("\t\telse { m68k_areg (regs, 7) += offset; Exception (14); goto %s; }\n", endlabelstr);
 		    printf ("\t\tregs.sr = newsr; MakeFromSR ();\n}\n");
 		    pop_braces (old_brace_level);
 		    printf ("\tregs.sr = newsr;\n");
+			addcycles_ce020__1 (4);
 			makefromsr ();
 		    printf ("\tif (newpc & 1) {\n");
 		    printf ("\t\texception3i (0x%04lX, newpc);\n", opcode);

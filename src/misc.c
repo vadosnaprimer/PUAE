@@ -91,6 +91,19 @@ extern void setmaintitle(void);
 extern int isvsync_chipset (void);
 extern int isvsync_rtg (void);
 
+bool my_issamepath(const TCHAR *path1, const TCHAR *path2)
+{
+	TCHAR *path1o, *path2o;
+	if(!(path1o = realpath(path1, NULL))) return false;
+	if(!(path2o = realpath(path2, NULL))) {
+		free(path1o);
+		return false;
+	}
+	bool res = ! _tcsicmp(path1o, path2o);
+	free(path1o);
+	free(path2o);
+	return res;
+}
 
 void getgfxoffset (float *dxp, float *dyp, float *mxp, float *myp)
 {
