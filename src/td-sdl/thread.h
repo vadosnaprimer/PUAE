@@ -11,19 +11,22 @@
 
 /* Sempahores. We use POSIX semaphores; if you are porting this to a machine
  * with different ones, make them look like POSIX semaphores. */
-typedef SDL_sem *uae_sem_t;
+typedef struct {
+    SDL_sem *sem;
+} uae_sem_t;
+
 
 STATIC_INLINE int uae_sem_init(uae_sem_t *PSEM, int DUMMY, int INIT)
 {
-   *PSEM = SDL_CreateSemaphore (INIT);
+   PSEM->sem = SDL_CreateSemaphore (INIT);
 
-   return (*PSEM == 0);
+   return (PSEM->sem == 0);
 }
-#define uae_sem_destroy(PSEM)  SDL_DestroySemaphore (*PSEM)
-#define uae_sem_post(PSEM)     SDL_SemPost (*PSEM)
-#define uae_sem_wait(PSEM)     SDL_SemWait (*PSEM)
-#define uae_sem_trywait(PSEM)  SDL_SemTryWait (*PSEM)
-#define uae_sem_getvalue(PSEM) SDL_SemValue (*PSEM)
+#define uae_sem_destroy(PSEM)  SDL_DestroySemaphore ((PSEM)->sem)
+#define uae_sem_post(PSEM)     SDL_SemPost ((PSEM)->sem)
+#define uae_sem_wait(PSEM)     SDL_SemWait ((PSEM)->sem)
+#define uae_sem_trywait(PSEM)  SDL_SemTryWait ((PSEM)->sem)
+#define uae_sem_getvalue(PSEM) SDL_SemValue ((PSEM)->sem)
 
 #include "commpipe.h"
 
