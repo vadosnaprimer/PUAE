@@ -1,0 +1,16 @@
+prefix = @prefix@
+
+GFX_BACKEND = gfx-@gfx@
+GUI_BACKEND = gui-@gui@
+THREAD_BACKEND = td-@threads@
+MACHINE_BACKEND = md-@machine@
+OS_BACKEND = od-@os@
+SOUND_BACKEND = sd-@sound@
+JOYSTICK_BACKEND = jd-@joystick@
+TARGET = unix
+
+CC=@CC@
+HOSTCC=@HOSTCC@
+USER_CFLAGS=@CFLAGS@
+USER_CPPFLAGS=@CPPFLAGS@ -DFLOAT_@float@
+USER_LDFLAGS=@LDFLAGS@ @LIBS@
