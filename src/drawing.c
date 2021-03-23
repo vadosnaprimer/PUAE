@@ -685,9 +685,9 @@ void record_diw_line (int plfstrt, int first, int last)
  */
 
 /* The important positions in the line: where do we start drawing the left border,
-   where do we start drawing the playfield, where do we start drawing the right border.
-   All of these are forced into the visible window (VISIBLE_LEFT_BORDER .. VISIBLE_RIGHT_BORDER).
-   PLAYFIELD_START and PLAYFIELD_END are in window coordinates.  */
+where do we start drawing the playfield, where do we start drawing the right border.
+All of these are forced into the visible window (VISIBLE_LEFT_BORDER .. VISIBLE_RIGHT_BORDER).
+PLAYFIELD_START and PLAYFIELD_END are in window coordinates.  */
 static int playfield_start, playfield_end;
 static int real_playfield_start, real_playfield_end;
 static int sprite_playfield_start;
