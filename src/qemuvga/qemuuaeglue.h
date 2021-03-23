@@ -291,10 +291,10 @@ void cirrus_init_common(CirrusVGAState * s, int device_id, int is_pci,
                                MemoryRegion *system_memory,
                                MemoryRegion *system_io);
 
-struct DeviceState
+typedef struct DeviceState
 {
 	void *lsistate;
-};
+} DeviceState;
 
 #define QEMUFile void*
 #define PCIDevice void*
