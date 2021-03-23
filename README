@@ -1,24 +1,22 @@
-PUAE 2.8.1 beta series
+PUAE
 ---------------------------------------------------
 PUAE tries to continue where E-UAE left off..
 PUAE versioning is based on the merged WinUAE version..
 
-All is done by:
+Work until 2.8.1 was done by:
 	Mustafa 'GnoStiC' TUFAN (mustafa.tufan@gmail.com)
 
-Thanks:
-Sven Eden (cleanup), rofl0r
-
+GnoStiC disappeared from github a couple years ago,
+so I (rofl0r) am maintaining it now.
 
 GIT
 ---------------------------------------------------
-http://github.com/GnoStiC/PUAE
+http://github.com/rofl0r/PUAE
 
 
 PUAE Binaries
 ---------------------------------------------------
-I don't supply binaries for any OS
-but you may find compiled versions on net
+I don't supply binaries for any OS.
 
 You should also check FS-UAE: http://fengestad.no/wp/fs-uae
                   and WinUAE: http://www.winuae.net
@@ -36,30 +34,77 @@ PNaCl      : http://pnacl-amiga-emulator.appspot.com
 AROS       : http://aminet.net/package/misc/emu/p-uae.i386-aros
 Retroarch  : https://github.com/libretro/libretro-uae
 
-Using PUAE
+About PUAE
 ---------------------------------------------------
-See the docs directory
 
+PUAE (and EUAE) traditionally offered tons of configuration options,
+which resulted in a maintenance nightmare, with most of the untested
+combinations broken.
+recently the build system was refactored to allow only a minimal set
+of configurable options, in the hope that this will ease the situation.
+
+At this time, only a GTK+2 and SDL frontend are supported, as well as
+a subset of host operating systems and machines.
+
+Development is mainly focused on linux and SDL 1.2.
+Since SDL2 was supported at some point it should be possible to make it
+work again with some minor tweaks. File a PR if you're interested.
+
+See also the docs directory (might be partially outdated).
+
+Difference to FS-UAE
+---------------------------------------------------
+
+UAE was originally written in C, and WinUAE basically continued
+using only the C subset of C++ but renamed files to .cc so MSVC's
+C++ compiler could be used instead of its crippled C compiler
+which produces abysmally bad code.
+When merging changes from WinUAE, PUAE renames the files to .c before
+diffing and compiles everything as C.
+
+FS-UAE otoh embraces C++ and its new features which leads to a lot
+longer compile times. Additonally it makes heavy use of OpenGL and 3D
+effects for its UI, so if your GPU isn't that great or you don't have
+OpenGL at all, it's unusable.
+Additionally FS-UAE introduced a dependency on GLib.
+
+PUAE works just fine without OpenGL.
 
 Compiling PUAE
 ---------------------------------------------------
-See the docs/compiling.txt
 
-i use
-macbook pro, xcode 5.1, sdl 1.2.15, macosx 10.9.2
-(build_macos_cocoa)
+check out the sources from git, then run `autoreconf -i` to
+generate the configure script.
+
+run `./configure --help` to read which `--with-...` options
+are available.
+
+then run `./configure` with the options you require, followed
+by `make -jN` where N is the number of CPU cores.
+
+See also docs/compiling.txt (which may be outdated).
+
+Tested environment:
+Linux, x86_64, GCC 6.5.0.
+
+Using PUAE
+----------
+
+after build, cd to src, and put your kickstart roms into `roms` and
+your adf files into `disks`. then run `./uae`.
+in the SDL gui you may now select a ROM (confirm selection with `b`
+button either on keyboard or joypad), and an adf file.
+using button b will put the file into DF0, while button a will put
+it into DF1.
+you can get back into the menu using `F12` key - while inside the
+menu you can save/load savestates and toggle fullscreen mode with
+(right)ALT-enter.
+Note that PUAE sometimes gets stuck when selecting `exit` - therefore
+it's a good idea to quit fullscreen mode before doing that.
 
 
-Bug Reports
+Bug Reports/Contact
 ---------------------------------------------------
-Post it on github/eab forum or e-mail me
+Open an issue here on github.
 
 
-Contact
----------------------------------------------------
-http://eab.abime.net/forumdisplay.php?f=54
-http://www.freelists.org/list/uae
-
-mustafa.tufan@gmail.com
-http://mustafatufan.com
-http://gnostic.ms
