@@ -1,48 +1,48 @@
 /*
- * UAE - The Un*x Amiga Emulator
- *
- * Save/restore emulator state
- *
- * (c) 1999-2001 Toni Wilen
- *
- * see below for ASF-structure
- */
+* UAE - The Un*x Amiga Emulator
+*
+* Save/restore emulator state
+*
+* (c) 1999-2001 Toni Wilen
+*
+* see below for ASF-structure
+*/
 
 /* Features:
- *
- * - full CPU state (68000/68010/68020/68030/68040/68060)
- * - FPU (68881/68882/68040/68060)
- * - full CIA-A and CIA-B state (with all internal registers)
- * - saves all custom registers and audio internal state.
- * - Chip, Bogo, Fast, Z3 and Picasso96 RAM supported
- * - disk drive type, imagefile, track and motor state
- * - Kickstart ROM version, address and size is saved. This data is not used during restore yet.
- * - Action Replay state is saved
- */
+*
+* - full CPU state (68000/68010/68020/68030/68040/68060)
+* - FPU (68881/68882/68040/68060)
+* - full CIA-A and CIA-B state (with all internal registers)
+* - saves all custom registers and audio internal state.
+* - Chip, Bogo, Fast, Z3 and Picasso96 RAM supported
+* - disk drive type, imagefile, track and motor state
+* - Kickstart ROM version, address and size is saved. This data is not used during restore yet.
+* - Action Replay state is saved
+*/
 
 /* Notes:
- *
- * - blitter state is not saved, blitter is forced to finish immediately if it
- *   was active
- * - disk DMA state is completely saved
- * - does not ask for statefile name and description. Currently uses DF0's disk
- *   image name (".adf" is replaced with ".asf")
- * - only Amiga state is restored, harddisk support, autoconfig, expansion boards etc..
- *   are not saved/restored (and probably never will).
- * - use this for saving games that can't be saved to disk
- */
+*
+* - blitter state is not saved, blitter is forced to finish immediately if it
+*   was active
+* - disk DMA state is completely saved
+* - does not ask for statefile name and description. Currently uses DF0's disk
+*   image name (".adf" is replaced with ".asf")
+* - only Amiga state is restored, harddisk support, autoconfig, expansion boards etc..
+*   are not saved/restored (and probably never will).
+* - use this for saving games that can't be saved to disk
+*/
 
 /* Usage :
- *
- * save:
- *
- * set savestate_state = STATE_DOSAVE, savestate_filename = "..."
- *
- * restore:
- *
- * set savestate_state = STATE_DORESTORE, savestate_filename = "..."
- *
- */
+*
+* save:
+*
+* set savestate_state = STATE_DOSAVE, savestate_filename = "..."
+*
+* restore:
+*
+* set savestate_state = STATE_DORESTORE, savestate_filename = "..."
+*
+*/
 
 #define OPEN_LOG 0
 
@@ -256,7 +256,7 @@ TCHAR *restore_path_func (uae_u8 **dstp, int type)
 {
 	TCHAR *newpath;
 	TCHAR *s;
-	// REMOVEME: TCHAR *out = NULL;
+	TCHAR *out = NULL;
 	TCHAR tmp[MAX_DPATH], tmp2[MAX_DPATH];
 
 	s = restore_string_func (dstp);
@@ -284,7 +284,7 @@ TCHAR *restore_path_func (uae_u8 **dstp, int type)
 		_tcscpy (tmp2, newpath);
 		fixtrailing (tmp2);
 		_tcscat (tmp2, tmp);
-		//fullpath (tmp2, sizeof tmp2 / sizeof (TCHAR));
+		fullpath (tmp2, sizeof tmp2 / sizeof (TCHAR));
 		if (zfile_exists (tmp2)) {
 			xfree (s);
 			return my_strdup (tmp2);
@@ -299,7 +299,6 @@ TCHAR *restore_path_func (uae_u8 **dstp, int type)
 	return s;
 }
 
-#ifdef SAVESTATE
 /* read and write IFF-style hunks */
 
 static void save_chunk (struct zfile *f, uae_u8 *chunk, size_t len, TCHAR *name, int compress)
@@ -683,32 +682,25 @@ void restore_state (const TCHAR *filename)
 		else if (!_tcscmp (name, _T("DMAC")))
 			end = restore_cdtv_dmac (chunk);
 #endif
-#ifdef SCSI
 		else if (!_tcscmp (name, _T("DMC2")))
 			end = restore_scsi_dmac (chunk);
 		else if (!_tcscmp (name, _T("SCSI")))
 			end = restore_scsi_device (chunk);
 		else if (!_tcscmp (name, _T("SCSD")))
 			end = restore_scsidev (chunk);
-#endif
-#ifdef GAYLE
 		else if (!_tcscmp (name, _T("GAYL")))
 			end = restore_gayle (chunk);
 		else if (!_tcscmp (name, _T("IDE ")))
 			end = restore_ide (chunk);
-#endif
-#ifdef CD32
 		else if (!_tcsncmp (name, _T("CDU"), 3))
 			end = restore_cd (name[3] - '0', chunk);
-#endif
 #ifdef A2065
 		else if (!_tcsncmp (name, _T("2065"), 4))
 			end = restore_a2065 (chunk);
 #endif
-#ifdef DEBUGGER
 		else if (!_tcsncmp (name, _T("DMWP"), 4))
 			end = restore_debug_memwatch (chunk);
-#endif
+
 		else if (!_tcscmp (name, _T("CONF")))
 			end = restore_configuration (chunk);
 		else if (!_tcscmp (name, _T("LOG ")))
@@ -747,9 +739,7 @@ void savestate_restore_finish (void)
 	restore_audio_finish ();
 	restore_disk_finish ();
 	restore_blitter_finish ();
-#ifdef CD32
 	restore_akiko_finish ();
-#endif
 #ifdef CDTV
 	restore_cdtv_finish ();
 #endif
@@ -760,9 +750,7 @@ void savestate_restore_finish (void)
 	restore_a2065_finish ();
 #endif
 	restore_cia_finish ();
-#ifdef DEBUGGER
 	restore_debug_memwatch_finish ();
-#endif
 	savestate_state = 0;
 	init_hz_full ();
 	audio_activate ();
@@ -984,7 +972,6 @@ static int save_state_internal (struct zfile *f, const TCHAR *description, int c
 	save_chunk (f, dst, len, _T("DMAC"), 0);
 	xfree (dst);
 #endif
-#ifdef SCSI
 	dst = save_scsi_dmac (&len, NULL);
 	save_chunk (f, dst, len, _T("DMC2"), 0);
 	xfree (dst);
@@ -998,7 +985,6 @@ static int save_state_internal (struct zfile *f, const TCHAR *description, int c
 		save_chunk (f, dst, len, _T("SCSD"), 0);
 		xfree (dst);
 	}
-#endif
 #ifdef ACTION_REPLAY
 	dst = save_action_replay (&len, NULL);
 	save_chunk (f, dst, len, _T("ACTR"), comp);
@@ -1018,7 +1004,6 @@ static int save_state_internal (struct zfile *f, const TCHAR *description, int c
 		}
 	}
 #endif
-#ifdef GAYLE
 	dst = save_gayle (&len, NULL);
 	if (dst) {
 		save_chunk (f, dst, len, _T("GAYL"), 0);
@@ -1031,8 +1016,7 @@ static int save_state_internal (struct zfile *f, const TCHAR *description, int c
 			xfree (dst);
 		}
 	}
-#endif
-#ifdef CDTV
+
 	for (i = 0; i < MAX_TOTAL_SCSI_DEVICES; i++) {
 		dst = save_cd (i, &len);
 		if (dst) {
@@ -1040,10 +1024,8 @@ static int save_state_internal (struct zfile *f, const TCHAR *description, int c
 			save_chunk (f, dst, len, name, 0);
 		}
 	}
-#endif
-#ifdef DEBUGGER
+
 	dst = save_debug_memwatch (&len, NULL);
-#endif
 	if (dst) {
 		save_chunk (f, dst, len, _T("DMWP"), 0);
 		xfree(dst);
@@ -1077,12 +1059,10 @@ int save_state (const TCHAR *filename, const TCHAR *description)
 
 	if (!savestate_specialdump && !savestate_nodialogs) {
 		state_incompatible_warn ();
-#ifdef FILESYS
 		if (!save_filesys_cando ()) {
 			gui_message (_T("Filesystem active. Try again later."));
 			return -1;
 		}
-#endif
 	}
 	new_blitter = false;
 	savestate_nodialogs = 0;
@@ -1199,11 +1179,34 @@ int savestate_dorewind (int pos)
 	}
 	return 0;
 }
+#if 0
+void savestate_listrewind (void)
+{
+	int i = replaycounter;
+	int cnt;
+	uae_u8 *p;
+	uae_u32 pc;
+
+	cnt = 1;
+	for (;;) {
+		struct staterecord *st;
+		st = &staterecords[i];
+		if (!st->start)
+			break;
+		p = st->cpu + 17 * 4;
+		pc = restore_u32_func (&p);
+		console_out_f (_T("%d: PC=%08X %c\n"), cnt, pc, regs.pc == pc ? '*' : ' ');
+		cnt++;
+		i--;
+		if (i < 0)
+			i += MAX_STATERECORDS;
+	}
+}
+#endif
 
 void savestate_rewind (void)
 {
-	uae_u32 len;
-	int i, dummy;
+	int len, i, dummy;
 	uae_u8 *p, *p2;
 	struct staterecord *st;
 	int pos;
@@ -1296,18 +1299,14 @@ void savestate_rewind (void)
 	if (restore_u32_func (&p))
 		p = restore_cdtv_dmac (p);
 #endif
-#ifdef SCSCI
 	if (restore_u32_func (&p))
 		p = restore_scsi_dmac (p);
-#endif
-#ifdef GAYLE
 	if (restore_u32_func (&p))
 		p = restore_gayle (p);
 	for (i = 0; i < 4; i++) {
 		if (restore_u32_func (&p))
 			p = restore_ide (p);
 	}
-#endif
 	p += 4;
 	if (p != p2) {
 		gui_message (_T("reload failure, address mismatch %p != %p"), p, p2);
@@ -1644,7 +1643,6 @@ retry2:
 		p += len;
 	}
 #endif
-#ifdef SCSI
 	if (bufcheck (st, p, 0))
 		goto retry;
 	p3 = p;
@@ -1655,8 +1653,6 @@ retry2:
 		tlen += len;
 		p += len;
 	}
-#endif
-#ifdef GAYLE
 	if (bufcheck (st, p, 0))
 		goto retry;
 	p3 = p;
@@ -1679,7 +1675,6 @@ retry2:
 			p += len;
 		}
 	}
-#endif
 	save_u32_func (&p, tlen);
 	st->end = p;
 	st->inuse = 1;
@@ -1778,268 +1773,268 @@ version 0.8
 
 HUNK HEADER (beginning of every hunk)
 
-	hunk name (4 ascii-characters)
-	hunk size (including header)
-	hunk flags
+hunk name (4 ascii-characters)
+hunk size (including header)
+hunk flags
 
-	bit 0 = chunk contents are compressed with zlib (maybe RAM chunks only?)
+bit 0 = chunk contents are compressed with zlib (maybe RAM chunks only?)
 
 HEADER
 
-	"ASF " (AmigaStateFile)
+"ASF " (AmigaStateFile)
 
-	statefile version
-	emulator name ("uae", "fellow" etc..)
-	emulator version string (example: "0.8.15")
-	free user writable comment string
+statefile version
+emulator name ("uae", "fellow" etc..)
+emulator version string (example: "0.8.15")
+free user writable comment string
 
 CPU
 
-	 "CPU "
+"CPU "
 
-	CPU model               4 (68000,68010,68020,68030,68040,68060)
-	CPU typeflags           bit 0=EC-model or not, bit 31 = clock rate included
-	D0-D7                   8*4=32
-	A0-A6                   7*4=32
-	PC                      4
-	unused			4
-	68000 prefetch (IRC)    2
-	68000 prefetch (IR)     2
-	USP                     4
-	ISP                     4
-	SR/CCR                  2
-	flags                   4 (bit 0=CPU was HALTed)
+CPU model               4 (68000,68010,68020,68030,68040,68060)
+CPU typeflags           bit 0=EC-model or not, bit 31 = clock rate included
+D0-D7                   8*4=32
+A0-A6                   7*4=32
+PC                      4
+unused			4
+68000 prefetch (IRC)    2
+68000 prefetch (IR)     2
+USP                     4
+ISP                     4
+SR/CCR                  2
+flags                   4 (bit 0=CPU was HALTed)
 
-	CPU specific registers
+CPU specific registers
 
-	68000: SR/CCR is last saved register
-	68010: save also DFC,SFC and VBR
-	68020: all 68010 registers and CAAR,CACR and MSP
-	etc..
+68000: SR/CCR is last saved register
+68010: save also DFC,SFC and VBR
+68020: all 68010 registers and CAAR,CACR and MSP
+etc..
 
-	68010+:
+68010+:
 
-	DFC                     4
-	SFC                     4
-	VBR                     4
+DFC                     4
+SFC                     4
+VBR                     4
 
-	68020+:
+68020+:
 
-	CAAR                    4
-	CACR                    4
-	MSP                     4
+CAAR                    4
+CACR                    4
+MSP                     4
 
-	68030+:
+68030+:
 
-	AC0                     4
-	AC1                     4
-	ACUSR                   2
-	TT0                     4
-	TT1                     4
+AC0                     4
+AC1                     4
+ACUSR                   2
+TT0                     4
+TT1                     4
 
-	68040+:
+68040+:
 
-	ITT0                    4
-	ITT1                    4
-	DTT0                    4
-	DTT1                    4
-	TCR                     4
-	URP                     4
-	SRP                     4
+ITT0                    4
+ITT1                    4
+DTT0                    4
+DTT1                    4
+TCR                     4
+URP                     4
+SRP                     4
 
-	68060:
+68060:
 
-	BUSCR                   4
-	PCR                     4
+BUSCR                   4
+PCR                     4
 
-	All:
+All:
 
-	Clock in KHz            4 (only if bit 31 in flags)
-	4 (spare, only if bit 31 in flags)
+Clock in KHz            4 (only if bit 31 in flags)
+4 (spare, only if bit 31 in flags)
 
 
 FPU (only if used)
 
-	"FPU "
+"FPU "
 
-	FPU model               4 (68881/68882/68040/68060)
-	FPU typeflags           4 (bit 31 = clock rate included)
-	FP0-FP7                 4+4+2 (80 bits)
-	FPCR                    4
-	FPSR                    4
-	FPIAR                   4
+FPU model               4 (68881/68882/68040/68060)
+FPU typeflags           4 (bit 31 = clock rate included)
+FP0-FP7                 4+4+2 (80 bits)
+FPCR                    4
+FPSR                    4
+FPIAR                   4
 
-	Clock in KHz            4 (only if bit 31 in flags)
-	4 (spare, only if bit 31 in flags)
+Clock in KHz            4 (only if bit 31 in flags)
+4 (spare, only if bit 31 in flags)
 
 MMU (when and if MMU is supported in future..)
 
-	"MMU "
+"MMU "
 
-	MMU model               4 (68040)
-	flags					4 (none defined yet)
+MMU model               4 (68040)
+flags			4 (none defined yet)
 
 CUSTOM CHIPS
 
-	"CHIP"
+"CHIP"
 
-	chipset flags   		4      OCS=0,ECSAGNUS=1,ECSDENISE=2,AGA=4
-	ECSAGNUS and ECSDENISE can be combined
+chipset flags   4      OCS=0,ECSAGNUS=1,ECSDENISE=2,AGA=4
+ECSAGNUS and ECSDENISE can be combined
 
-	DFF000-DFF1FF   		352    (0x120 - 0x17f and 0x0a0 - 0xdf excluded)
+DFF000-DFF1FF   352    (0x120 - 0x17f and 0x0a0 - 0xdf excluded)
 
-	sprite registers (0x120 - 0x17f) saved with SPRx chunks
-	audio registers (0x0a0 - 0xdf) saved with AUDx chunks
+sprite registers (0x120 - 0x17f) saved with SPRx chunks
+audio registers (0x0a0 - 0xdf) saved with AUDx chunks
 
 AGA COLORS
 
-	"AGAC"
+"AGAC"
 
-	AGA color               8 banks * 32 registers *
-	registers               LONG (XRGB) = 1024
+AGA color               8 banks * 32 registers *
+registers               LONG (XRGB) = 1024
 
 SPRITE
 
-	"SPR0" - "SPR7"
+"SPR0" - "SPR7"
 
 
-	SPRxPT                  4
-	SPRxPOS                 2
-	SPRxCTL                 2
-	SPRxDATA                2
-	SPRxDATB                2
-	AGA sprite DATA/DATB    3 * 2 * 2
-	sprite "armed" status   1
+SPRxPT                  4
+SPRxPOS                 2
+SPRxCTL                 2
+SPRxDATA                2
+SPRxDATB                2
+AGA sprite DATA/DATB    3 * 2 * 2
+sprite "armed" status   1
 
-	sprites maybe armed in non-DMA mode
-	use bit 0 only, other bits are reserved
+sprites maybe armed in non-DMA mode
+use bit 0 only, other bits are reserved
 
 
 AUDIO
-	"AUD0" "AUD1" "AUD2" "AUD3"
+"AUD0" "AUD1" "AUD2" "AUD3"
 
-	audio state             1
-	machine mode
-	AUDxVOL                 1
-	irq?                    1
-	data_written?           1
-	internal AUDxLEN        2
-	AUDxLEN                 2
-	internal AUDxPER        2
-	AUDxPER                 2
-	internal AUDxLC         4
-	AUDxLC                  4
-	evtime?                 4
+audio state             1
+machine mode
+AUDxVOL                 1
+irq?                    1
+data_written?           1
+internal AUDxLEN        2
+AUDxLEN                 2
+internal AUDxPER        2
+AUDxPER                 2
+internal AUDxLC         4
+AUDxLC                  4
+evtime?                 4
 
 BLITTER
 
-	"BLIT"
+"BLIT"
 
-	internal blitter state
+internal blitter state
 
-	flags                   4
-	bit 0=blitter active
-	bit 1=fill carry bit
-	internal ahold          4
-	internal bhold          4
-	internal hsize          2
-	internal vsize          2
+flags                   4
+bit 0=blitter active
+bit 1=fill carry bit
+internal ahold          4
+internal bhold          4
+internal hsize          2
+internal vsize          2
 
 CIA
 
-	"CIAA" and "CIAB"
+"CIAA" and "CIAB"
 
-	BFE001-BFEF01   16*1 (CIAA)
-	BFD000-BFDF00   16*1 (CIAB)
+BFE001-BFEF01   16*1 (CIAA)
+BFD000-BFDF00   16*1 (CIAB)
 
-	internal registers
+internal registers
 
-	IRQ mask (ICR)  1 BYTE
-	timer latches   2 timers * 2 BYTES (LO/HI)
-	latched tod     3 BYTES (LO/MED/HI)
-	alarm           3 BYTES (LO/MED/HI)
-	flags           1 BYTE
-		bit 0=tod latched (read)
-		bit 1=tod stopped (write)
-	div10 counter	1 BYTE
+IRQ mask (ICR)  1 BYTE
+timer latches   2 timers * 2 BYTES (LO/HI)
+latched tod     3 BYTES (LO/MED/HI)
+alarm           3 BYTES (LO/MED/HI)
+flags           1 BYTE
+bit 0=tod latched (read)
+bit 1=tod stopped (write)
+div10 counter	1 BYTE
 
 FLOPPY DRIVES
 
-	"DSK0" "DSK1" "DSK2" "DSK3"
+"DSK0" "DSK1" "DSK2" "DSK3"
 
-	drive state
+drive state
 
-	drive ID-word           4
-	state                   1 (bit 0: motor on, bit 1: drive disabled, bit 2: current id bit)
-	rw-head track           1
-	dskready                1
-	id-mode                 1 (ID mode bit number 0-31)
-	floppy information
+drive ID-word           4
+state                   1 (bit 0: motor on, bit 1: drive disabled, bit 2: current id bit)
+rw-head track           1
+dskready                1
+id-mode                 1 (ID mode bit number 0-31)
+floppy information
 
-	bits from               4
-	beginning of track
-	CRC of disk-image       4 (used during restore to check if image
-				  is correct)
-	disk-image              null-terminated
-	file name
+bits from               4
+beginning of track
+CRC of disk-image       4 (used during restore to check if image
+is correct)
+disk-image              null-terminated
+file name
 
 INTERNAL FLOPPY	CONTROLLER STATUS
 
-	"DISK"
+"DISK"
 
-	current DMA word        2
-	DMA word bit offset     1
-	WORDSYNC found          1 (no=0,yes=1)
-	hpos of next bit        1
-	DSKLENGTH status        0=off,1=written once,2=written twice
-	unused                  2
+current DMA word        2
+DMA word bit offset     1
+WORDSYNC found          1 (no=0,yes=1)
+hpos of next bit        1
+DSKLENGTH status        0=off,1=written once,2=written twice
+unused                  2
 
 RAM SPACE
 
-	"xRAM" (CRAM = chip, BRAM = bogo, FRAM = fast, ZRAM = Z3, P96 = RTG RAM, A3K1/A3K2 = MB RAM)
+"xRAM" (CRAM = chip, BRAM = bogo, FRAM = fast, ZRAM = Z3, P96 = RTG RAM, A3K1/A3K2 = MB RAM)
 
-	start address           4 ("bank"=chip/slow/fast etc..)
-	of RAM "bank"
-	RAM "bank" size         4
-	RAM flags               4 (bit 0 = zlib compressed)
-	RAM "bank" contents
+start address           4 ("bank"=chip/slow/fast etc..)
+of RAM "bank"
+RAM "bank" size         4
+RAM flags               4 (bit 0 = zlib compressed)
+RAM "bank" contents
 
 ROM SPACE
 
-	"ROM "
+"ROM "
 
-	ROM start               4
-	address
-	size of ROM             4
-	ROM type                4 KICK=0
-	ROM flags               4
-	ROM version             2
-	ROM revision            2
-	ROM CRC                 4 see below
-	ROM-image ID-string     null terminated, see below
-	path to rom image
-	ROM contents            (Not mandatory, use hunk size to check if
-				this hunk contains ROM data or not)
+ROM start               4
+address
+size of ROM             4
+ROM type                4 KICK=0
+ROM flags               4
+ROM version             2
+ROM revision            2
+ROM CRC                 4 see below
+ROM-image ID-string     null terminated, see below
+path to rom image
+ROM contents            (Not mandatory, use hunk size to check if
+this hunk contains ROM data or not)
 
-	Kickstart ROM:
-	 ID-string is "Kickstart x.x"
-	 ROM version: version in high word and revision in low word
-	 Kickstart ROM version and revision can be found from ROM start
-	 + 12 (version) and +14 (revision)
+Kickstart ROM:
+ID-string is "Kickstart x.x"
+ROM version: version in high word and revision in low word
+Kickstart ROM version and revision can be found from ROM start
++ 12 (version) and +14 (revision)
 
-	ROM version and CRC is only meant for emulator to automatically
-	find correct image from its ROM-directory during state restore.
+ROM version and CRC is only meant for emulator to automatically
+find correct image from its ROM-directory during state restore.
 
-	Usually saving ROM contents is not good idea.
+Usually saving ROM contents is not good idea.
 
 ACTION REPLAY
 
-	"ACTR"
+"ACTR"
 
-	Model (1,2,3)		4
-	path to rom image
-	RAM space		(depends on model)
-	ROM CRC             4
+Model (1,2,3)		4
+path to rom image
+RAM space		(depends on model)
+ROM CRC             4
 
 "CDx "
 
@@ -2047,13 +2042,13 @@ Flags               4 (bit 0 = scsi, bit 1 = ide, bit 2 = image)
 Path                  (for example image file or drive letter)
 
 END
-	hunk "END " ends, remember hunk size 8!
+hunk "END " ends, remember hunk size 8!
 
 
 EMULATOR SPECIFIC HUNKS
 
-	Read only if "emulator name" in header is same as used emulator.
-	Maybe useful for configuration?
+Read only if "emulator name" in header is same as used emulator.
+Maybe useful for configuration?
 
 misc:
 
@@ -2062,5 +2057,3 @@ misc:
 - should we strip all paths from image file names?
 
 */
-
-#endif
