@@ -15,7 +15,7 @@
 #include <ctype.h>
 #include <wctype.h>
 
-#include "cfgfile.h"
+#include "options.h"
 #include "uae.h"
 #include "audio.h"
 #include "autoconf.h"
@@ -28,6 +28,7 @@
 #include "rommgr.h"
 #include "gui.h"
 #include "newcpu.h"
+#include "zfile.h"
 #include "filesys.h"
 #include "fsdb.h"
 #include "disk.h"
