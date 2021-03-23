@@ -93,6 +93,7 @@ a2091.o \
 cdrom.o \
 akiko.o \
 debug.o \
+uaenet.o \
 identify.o
 
 ifneq ($(UAE_VERSION), 260)
@@ -122,6 +123,7 @@ OBJCPPFLAGS = -DCPUEMU_0 -DCPUEMU_11 -DCPUEMU_$(CPU_12_OR_13) -DCPUEMU_20 -DCPUE
 ifeq (dms,$(findstring dms,$(ARCHIVERS)))
 	OBJCPPFLAGS += -DA_DMS
 endif
+
 ARCHIVERS_SRCS = $(sort $(wildcard $(ARCHIVERS:%=src/archivers/%/*.c)))
 ARCHVIERS_OBJS = $(ARCHIVERS_SRCS:.c=.o)
 MAIN_SRCS = $(MAIN_OBJS:.o=.c)
@@ -217,6 +219,11 @@ ifeq ($(GFX_BACKEND),gfx-x11)
 else
 	$(error gfx $(GFX_BACKEND) support in Makefile lacking)
 endif
+endif
+
+ifeq ($(WANT_NET), 1)
+OBJCPPFLAGS += -DUAENET -DA2065
+UAE_LDFLAGS += -lpcap
 endif
 
 LDFLAGS = $(GUI_LDFLAGS) $(UAE_LDFLAGS) $(USER_LDFLAGS)

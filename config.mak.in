@@ -8,6 +8,7 @@ OS_BACKEND = od-@os@
 SOUND_BACKEND = sd-@sound@
 JOYSTICK_BACKEND = jd-@joystick@
 TARGET = unix
+WANT_NET=@WANT_NET@
 
 CC=@CC@
 HOSTCC=@HOSTCC@

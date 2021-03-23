@@ -1,3 +1,6 @@
+#ifndef THREAD_H_INCLUDED
+#define THREAD_H_INCLUDED
+
 #if defined(THREAD_AMIGAOS)
 #include "td-amigaos/thread.h"
 #elif defined(THREAD_BEOS)
@@ -8,4 +11,6 @@
 #include "td-sdl/thread.h"
 #else
 #include "td-posix/thread.h"
+#endif
+
 #endif

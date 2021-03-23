@@ -8,6 +8,8 @@
  */
 
 #include "sysconfig.h"
+#include "sysdeps.h"
+#include "uae.h"
 
 #include <stdio.h>
 #ifdef A2065
@@ -142,7 +144,7 @@ void uaenet_close (struct uaenetdata *sd)
 	if (sd->threadactiver) {
 		while (sd->threadactiver)
 			sleep_millis(10);
-		write_log ("uaenet_ thread %d killed\n", sd->tidr);
+		write_log ("uaenet_ thread %ld killed\n", (long)(void*)sd->tidr);
 		uae_kill_thread (&sd->tidr);
 	}
 	if (sd->threadactivew) {
@@ -150,7 +152,7 @@ void uaenet_close (struct uaenetdata *sd)
 			sleep_millis(10);
 // REMOVEME: win32 specific
 //		CloseHandle (sd->evttw);
-		write_log ("uaenet thread %d killed\n", sd->tidw);
+		write_log ("uaenet thread %ld killed\n", (long)(void*)sd->tidw);
 		uae_kill_thread (&sd->tidw);
 	}
 	xfree (sd->readbuffer);

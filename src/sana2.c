@@ -29,7 +29,6 @@
 #include "sana2.h"
 #include "uaenet.h"
 #include "execio.h"
-#include "commpipe.h"
 
 #define SANA2NAME _T("uaenet.device")
 
@@ -169,33 +168,6 @@ struct mcast {
 	uae_u64 start;
 	uae_u64 end;
 	int cnt;
-};
-
-struct s2devstruct {
-	int unit, opencnt, exclusive, promiscuous;
-	struct asyncreq *ar;
-	struct asyncreq *s2p;
-	struct mcast *mc;
-	smp_comm_pipe requests;
-	int thread_running;
-	uae_sem_t sync_sem;
-	void *sysdata;
-	uae_u32 packetsreceived;
-	uae_u32 packetssent;
-	uae_u32 baddata;
-	uae_u32 overruns;
-	uae_u32 unknowntypesreceived;
-	uae_u32 reconfigurations;
-	uae_u32 online_micro;
-	uae_u32 online_secs;
-	int configured;
-	int adapter;
-	int online;
-	struct netdriverdata *td;
-	struct s2packet *readqueue;
-	uae_u8 mac[ADDR_SIZE];
-	int flush_timeout;
-	int flush_timeout_cnt;
 };
 
 #define FLUSH_TIMEOUT 20
@@ -738,7 +710,7 @@ static struct s2packet *createwritepacket (TrapContext *ctx, uaecptr request)
 	return s2p;
 }
 
-static int uaenet_getdata (struct s2devstruct *dev, uae_u8 *d, int *len)
+int uaenet_getdata (struct s2devstruct *dev, uae_u8 *d, int *len)
 {
 	int gotit;
 	struct asyncreq *ar;
@@ -1301,7 +1273,7 @@ static void *dev_thread (void *devs)
 {
 	struct s2devstruct *dev = (struct s2devstruct*)devs;
 
-	uae_set_thread_priority (NULL, 1);
+	uae_set_thread_priority (1);
 	dev->thread_running = 1;
 	uae_sem_post (&dev->sync_sem);
 	for (;;) {
