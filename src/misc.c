@@ -159,6 +159,10 @@ int vsync_switchmode (int hz)
 //win32.cpp
 int extraframewait = 5;
 
+void sleep_millis(int ms) {
+	uae_msleep (ms);
+}
+
 void sleep_millis_main (int ms)
 {
 	uae_msleep (ms);

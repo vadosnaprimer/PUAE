@@ -474,7 +474,6 @@ extern int gui_message_multibutton (int flags, const char *format,...);
 #define max(a,b) ((a) > (b) ? (a) : (b))
 #define _tcstod strtod
 #define _T
-#define sleep_millis uae_msleep
 #define _istalnum iswalnum
 #define ULONG unsigned long
 #define _strtoui64 strtoul
