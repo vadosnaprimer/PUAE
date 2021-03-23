@@ -29,7 +29,8 @@ extern void uae_quit (void);
 extern void uae_restart (int, const TCHAR*);
 extern void reset_all_systems (void);
 extern void target_reset (void);
-extern void target_addtorecent (const TCHAR*, int);
+//extern void target_addtorecent (const TCHAR*, int);
+#define target_addtorecent(A, B) do{}while(0)
 extern void target_run (void);
 extern void target_quit (void);
 extern void target_restart (void);

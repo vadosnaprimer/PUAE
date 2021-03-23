@@ -32,11 +32,11 @@ struct multipath {
 	TCHAR path[MAX_PATHS][PATH_MAX];
 };
 
-struct strlist {
+typedef struct strlist {
 	struct strlist *next;
 	TCHAR *option, *value;
 	int unknown;
-};
+} strlist;
 
 #define MAX_TOTAL_SCSI_DEVICES 8
 
@@ -105,7 +105,6 @@ struct jport {
 #define TABLET_MOUSEHACK 1
 #define TABLET_REAL 2
 
-#ifdef WITH_SLIRP
 #define MAX_SLIRP_REDIRS 32
 struct slirp_redir
 {
@@ -114,7 +113,6 @@ struct slirp_redir
 	int dstport;
 	unsigned long addr;
 };
-#endif
 
 struct cdslot
 {
@@ -319,9 +317,8 @@ struct uae_prefs {
 	bool use_gfxlib;
 	bool socket_emu;
 
-#ifdef DEBUGGER
 	bool start_debugger;
-#endif
+
 	bool start_gui;
 
 	KbdLang keyboard_lang;
@@ -345,7 +342,6 @@ struct uae_prefs {
 	int sampler_buffer;
 	bool sampler_stereo;
 
-#ifdef JIT
 	int comptrustbyte;
 	int comptrustword;
 	int comptrustlong;
@@ -361,7 +357,7 @@ struct uae_prefs {
 	bool comp_oldsegv;
 
 	int optcount[10];
-#endif
+
 	int cachesize;
 	bool avoid_cmov;
 
@@ -482,11 +478,11 @@ struct uae_prefs {
 	bool a4091;
 	TCHAR flashfile[MAX_DPATH];
 	TCHAR rtcfile[MAX_DPATH];
-#ifdef ACTION_REPLAY
+
 	TCHAR cartfile[MAX_DPATH];
 	TCHAR cartident[256];
 	int cart_internal;
-#endif
+
 	TCHAR pci_devices[256];
 	TCHAR prtname[256];
 	TCHAR sername[256];
@@ -553,52 +549,39 @@ struct uae_prefs {
 	struct floppyslot floppyslots[4];
 	bool floppy_read_only;
 	TCHAR dfxlist[MAX_SPARE_DRIVES][MAX_DPATH];
-#ifdef DRIVESOUND
+
 	int dfxclickvolume;
 	int dfxclickchannelmask;
-#endif
 
 	int win32_soundcard;
 
 	bool hide_cursor;				/* Whether to hide host WM cursor or not */
 
 	/* Target specific options */
-#ifdef USE_X11_GFX
+
 	bool x11_use_low_bandwidth;
 	bool x11_use_mitshm;
 	int x11_use_dgamode;
 	bool x11_hide_cursor;
-#endif
 
-#ifdef USE_SVGALIB_GFX
 	int svga_no_linear;
-#endif
 
 //	int win32_rtgvblankrate;
-#ifdef USE_CURSES_GFX
 	int curses_reverse_video;
-#endif
 
-#if 0
-#if defined USE_SDL_GFX || defined USE_X11_GFX
 	bool map_raw_keys;
-#endif
-#endif
+
 	bool use_gl;
 
-#ifdef USE_AMIGA_GFX
 	int  amiga_screen_type;
 	char amiga_publicscreen[256];
 	int  amiga_use_grey;
 	int  amiga_use_dither;
-#endif
-#ifdef WITH_SLIRP
+
 	struct slirp_redir slirp_redirs[MAX_SLIRP_REDIRS];
-#endif
-#ifdef SAVESTATE
+
 	bool statecapture;
 	int statecapturerate, statecapturebuffersize;
-#endif
 
 	/* input */
 
@@ -719,5 +702,7 @@ extern void machdep_free (void);
 #if defined TARGET_AMIGAOS && defined(__GNUC__)
 #include "od-amiga/amiga-kludges.h"
 #endif
+
+#define target_expand_environment(S) ((S) ? strdup(S) : (TCHAR*)0)
 
 #endif // OPTIONS_H

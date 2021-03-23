@@ -473,10 +473,11 @@ extern int gui_message_multibutton (int flags, const char *format,...);
 #define _vsntprintf vsnprintf
 #define max(a,b) ((a) > (b) ? (a) : (b))
 #define _tcstod strtod
-#define _T
+#define _T(X) X
 #define _istalnum iswalnum
 #define ULONG unsigned long
 #define _strtoui64 strtoul
+#define _tstoi64(S) strtoll(S, (char**)0, 10)
 #define _tcscspn(wcs, reject) wcscspn((const wchar_t*)(wcs), (const wchar_t*)(reject))
 #define stricmp strcasecmp
 #define strnicmp strncasecmp

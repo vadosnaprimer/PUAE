@@ -173,8 +173,12 @@ extern int my_mkdir (const TCHAR*);
 extern int my_unlink (const TCHAR*);
 extern int my_rename (const TCHAR*, const TCHAR*);
 extern int my_setcurrentdir (const TCHAR *curdir, TCHAR *oldcur);
+/*
 bool my_isfilehidden (const TCHAR *path);
 void my_setfilehidden (const TCHAR *path, bool hidden);
+*/
+#define my_isfilehidden(S) false
+#define my_setfilehidden(A, B) do{}while(0)
 
 extern struct my_openfile_s *my_open (const TCHAR*, int);
 extern void my_close (struct my_openfile_s*);
