@@ -241,22 +241,6 @@ static const TCHAR *obsolete[] = {
 	NULL
 };
 
-/* internal prototypes */
-void cfgfile_write_str (struct zfile *f, const TCHAR *option, const TCHAR *value);
-void cfgfile_dwrite_str (struct zfile *f, const TCHAR *option, const TCHAR *value);
-void cfgfile_target_write_str (struct zfile *f, const TCHAR *option, const TCHAR *value);
-void cfgfile_target_dwrite_str (struct zfile *f, const TCHAR *option, const TCHAR *value);
-void cfgfile_save_options (struct zfile *f, struct uae_prefs *p, int type);
-int cfgfile_yesno2 (const TCHAR *option, const TCHAR *value, const TCHAR *name, int *location);
-int cfgfile_doubleval (const TCHAR *option, const TCHAR *value, const TCHAR *name, double *location);
-int cfgfile_floatval (const TCHAR *option, const TCHAR *value, const TCHAR *name, float *location);
-int cfgfile_intval_unsigned (const TCHAR *option, const TCHAR *value, const TCHAR *name, unsigned int *location, int scale);
-int cfgfile_strboolval (const TCHAR *option, const TCHAR *value, const TCHAR *name, bool *location, const TCHAR *table[], int more);
-int cfgfile_path_mp (const TCHAR *option, const TCHAR *value, const TCHAR *name, TCHAR *location, int maxsz, struct multipath *mp);
-int cfgfile_path (const TCHAR *option, const TCHAR *value, const TCHAR *name, TCHAR *location, int maxsz);
-int cfgfile_multipath (const TCHAR *option, const TCHAR *value, const TCHAR *name, struct multipath *mp);
-int cfgfile_rom (const TCHAR *option, const TCHAR *value, const TCHAR *name, TCHAR *location, int maxsz);
-
 /* external prototypes */
 int machdep_parse_option (struct uae_prefs *, const char *, const char *);
 int gfx_parse_option (struct uae_prefs *, const char *, const char *);
