@@ -1,13 +1,12 @@
 /*
- * UAE - The Un*x Amiga Emulator
- *
- * A590/A2091/A3000/CDTV SCSI expansion (DMAC/SuperDMAC + WD33C93) emulation
- *
- * Copyright 2007-2014 Toni Wilen
- *
- */
+* UAE - The Un*x Amiga Emulator
+*
+* A590/A2091/A3000/CDTV SCSI expansion (DMAC/SuperDMAC + WD33C93) emulation
+*
+* Copyright 2007-2013 Toni Wilen
+*
+*/
 
-#ifdef A2091
 #define A2091_DEBUG 0
 #define A2091_DEBUG_IO 0
 #define A3000_DEBUG 0
@@ -35,7 +34,6 @@
 #include "cdtv.h"
 #include "savestate.h"
 #include "threaddep/thread.h"
-#include "sleep.h"
 
 #define ROM_VECTOR 0x2000
 #define ROM_OFFSET 0x2000
@@ -65,59 +63,59 @@
 #define ISTR_FE_FLG	(1<<0)	/* FIFO-Empty Flag */
 
 /* wd register names */
-#define WD_OWN_ID				0x00
-#define WD_CONTROL				0x01
-#define WD_TIMEOUT_PERIOD		0x02
-#define WD_CDB_1				0x03
-#define WD_CDB_2				0x04
-#define WD_CDB_3				0x05
-#define WD_CDB_4				0x06
-#define WD_CDB_5				0x07
-#define WD_CDB_6				0x08
-#define WD_CDB_7				0x09
-#define WD_CDB_8				0x0a
-#define WD_CDB_9				0x0b
-#define WD_CDB_10				0x0c
-#define WD_CDB_11				0x0d
-#define WD_CDB_12				0x0e
-#define WD_TARGET_LUN			0x0f
-#define WD_COMMAND_PHASE		0x10
-#define WD_SYNCHRONOUS_TRANSFER	0x11
+#define WD_OWN_ID		0x00
+#define WD_CONTROL		0x01
+#define WD_TIMEOUT_PERIOD	0x02
+#define WD_CDB_1		0x03
+#define WD_CDB_2		0x04
+#define WD_CDB_3		0x05
+#define WD_CDB_4		0x06
+#define WD_CDB_5		0x07
+#define WD_CDB_6		0x08
+#define WD_CDB_7		0x09
+#define WD_CDB_8		0x0a
+#define WD_CDB_9		0x0b
+#define WD_CDB_10		0x0c
+#define WD_CDB_11		0x0d
+#define WD_CDB_12		0x0e
+#define WD_TARGET_LUN		0x0f
+#define WD_COMMAND_PHASE	0x10
+#define WD_SYNCHRONOUS_TRANSFER 0x11
 #define WD_TRANSFER_COUNT_MSB	0x12
-#define WD_TRANSFER_COUNT		0x13
+#define WD_TRANSFER_COUNT	0x13
 #define WD_TRANSFER_COUNT_LSB	0x14
-#define WD_DESTINATION_ID		0x15
-#define WD_SOURCE_ID			0x16
-#define WD_SCSI_STATUS			0x17
-#define WD_COMMAND				0x18
-#define WD_DATA					0x19
-#define WD_QUEUE_TAG			0x1a
-#define WD_AUXILIARY_STATUS		0x1f
+#define WD_DESTINATION_ID	0x15
+#define WD_SOURCE_ID		0x16
+#define WD_SCSI_STATUS		0x17
+#define WD_COMMAND		0x18
+#define WD_DATA			0x19
+#define WD_QUEUE_TAG		0x1a
+#define WD_AUXILIARY_STATUS	0x1f
 /* WD commands */
-#define WD_CMD_RESET			0x00
-#define WD_CMD_ABORT			0x01
-#define WD_CMD_ASSERT_ATN		0x02
-#define WD_CMD_NEGATE_ACK		0x03
-#define WD_CMD_DISCONNECT		0x04
-#define WD_CMD_RESELECT			0x05
-#define WD_CMD_SEL_ATN			0x06
-#define WD_CMD_SEL				0x07
-#define WD_CMD_SEL_ATN_XFER		0x08
-#define WD_CMD_SEL_XFER			0x09
+#define WD_CMD_RESET		0x00
+#define WD_CMD_ABORT		0x01
+#define WD_CMD_ASSERT_ATN	0x02
+#define WD_CMD_NEGATE_ACK	0x03
+#define WD_CMD_DISCONNECT	0x04
+#define WD_CMD_RESELECT		0x05
+#define WD_CMD_SEL_ATN		0x06
+#define WD_CMD_SEL		0x07
+#define WD_CMD_SEL_ATN_XFER	0x08
+#define WD_CMD_SEL_XFER		0x09
 #define WD_CMD_RESEL_RECEIVE	0x0a
-#define WD_CMD_RESEL_SEND		0x0b
+#define WD_CMD_RESEL_SEND	0x0b
 #define WD_CMD_WAIT_SEL_RECEIVE	0x0c
-#define WD_CMD_TRANS_ADDR		0x18
-#define WD_CMD_TRANS_INFO		0x20
-#define WD_CMD_TRANSFER_PAD		0x21
-#define WD_CMD_SBT_MODE			0x80
+#define WD_CMD_TRANS_ADDR	0x18
+#define WD_CMD_TRANS_INFO	0x20
+#define WD_CMD_TRANSFER_PAD	0x21
+#define WD_CMD_SBT_MODE		0x80
 
 /* paused or aborted interrupts */
 #define CSR_MSGIN			0x20
 #define CSR_SDP				0x21
-#define CSR_SEL_ABORT	    0x22
-#define CSR_RESEL_ABORT	    0x25
-#define CSR_RESEL_ABORT_AM 	0x27
+#define CSR_SEL_ABORT		0x22
+#define CSR_RESEL_ABORT		0x25
+#define CSR_RESEL_ABORT_AM	0x27
 #define CSR_ABORT			0x28
 /* successful completion interrupts */
 #define CSR_RESELECT		0x10
@@ -138,12 +136,12 @@
 #define CSR_DISC			0x85
 #define CSR_SRV_REQ			0x88
 /* SCSI Bus Phases */
-#define PHS_DATA_OUT		0x00
-#define PHS_DATA_IN			0x01
-#define PHS_COMMAND			0x02
-#define PHS_STATUS			0x03
-#define PHS_MESS_OUT		0x06
-#define PHS_MESS_IN			0x07
+#define PHS_DATA_OUT	0x00
+#define PHS_DATA_IN		0x01
+#define PHS_COMMAND		0x02
+#define PHS_STATUS		0x03
+#define PHS_MESS_OUT	0x06
+#define PHS_MESS_IN		0x07
 
 /* Auxialiry status */
 #define ASR_INT			0x80	/* Interrupt pending */
@@ -172,11 +170,11 @@
 #define CTL_HSP			0x01	/* Halt on SCSI parity error */
 
 /* SCSI Messages */
-#define MSG_COMMAND_COMPLETE		0x00
-#define MSG_SAVE_DATA_POINTER		0x02
-#define MSG_RESTORE_DATA_POINTERS	0x03
-#define MSG_NOP 					0x08
-#define MSG_IDENTIFY 				0x80
+#define MSG_COMMAND_COMPLETE 0x00
+#define MSG_SAVE_DATA_POINTER 0x02
+#define MSG_RESTORE_DATA_POINTERS 0x03
+#define MSG_NOP 0x08
+#define MSG_IDENTIFY 0x80
 
 static int configured;
 static uae_u8 dmacmemory[100];
@@ -629,7 +627,7 @@ static void wd_cmd_sel_xfer (bool atn)
 		scsi_start_transfer (scsi);
 		wdregs[WD_COMMAND_PHASE] = 0x45;
 	}
-
+		
 	if (wdregs[WD_COMMAND_PHASE] == 0x45) {
 		settc (tmp_tc);
 		wd_dataoffset = 0;
@@ -818,7 +816,7 @@ static void wd_cmd_sel (bool atn)
 	} else {
 		wdregs[WD_COMMAND_PHASE] = 0x10; // connected as an initiator
 		set_status (CSR_SRV_REQ | PHS_COMMAND, 4);
-	}
+	} 
 }
 
 static void wd_cmd_reset (bool irq)
@@ -1613,7 +1611,7 @@ static void *scsi_thread (void *null)
 			break;
 		int cmd = v & 0x7f;
 		int msg = (v >> 8) & 0xff;
-		// REMOVEME: unused : int unit = (v >> 24) & 0xff;
+		int unit = (v >> 24) & 0xff;
 		//write_log (_T("scsi_thread got msg=%d cmd=%d\n"), msg, cmd);
 		if (msg == 0) {
 			if (WD33C93_DEBUG > 0)
@@ -1893,7 +1891,7 @@ void a2091_init (void)
 uae_u8 *save_scsi_dmac (int *len, uae_u8 *dstptr)
 {
 	uae_u8 *dstbak, *dst;
-
+	
 	if (!currprefs.a2091 && !currprefs.cs_mbdmac)
 		return NULL;
 	if (dstptr)
@@ -2028,4 +2026,3 @@ uae_u8 *restore_scsi_device (uae_u8 *src)
 	}
 	return src;
 }
-#endif //A2091
