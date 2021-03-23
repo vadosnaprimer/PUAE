@@ -81,7 +81,6 @@ static struct zcache *cache_get (const TCHAR *name)
 struct zvolume *zvolume_alloc_nofile (const TCHAR *name, unsigned int id, void *handle, const TCHAR *volumename);
 struct zvolume *zfile_fopen_directory (const TCHAR *dirname);
 struct zvolume *zfile_fopen_archive_flags (const TCHAR *filename, int flags);
-struct zdirectory *zfile_opendir_archive_flags (const TCHAR *path, int flags);
 int zfile_readdir_archive_fullpath (struct zdirectory *zd, TCHAR *out, bool fullpath);
 int zfile_fs_usage_archive (const TCHAR *path, const TCHAR *disk, struct fs_usage *fsp);
 

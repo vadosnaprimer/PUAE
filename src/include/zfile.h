@@ -143,5 +143,6 @@ extern struct zfile *zfile_fopen_data (const TCHAR *name, uae_u64 size, const ua
 
 extern void timeval_to_amiga (struct mytimeval *tv, int* days, int* mins, int* ticks);
 extern void amiga_to_timeval (struct mytimeval *tv, int days, int mins, int ticks);
+extern struct zdirectory *zfile_opendir_archive_flags (const TCHAR *path, int flags);
 
 #endif // ZFILE_H
