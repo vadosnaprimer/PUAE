@@ -1,13 +1,13 @@
 /*
- * UAE - The Un*x Amiga Emulator
- *
- * CDTV DMAC/CDROM controller emulation
- *
- * Copyright 2004/2007-2010 Toni Wilen
- *
- * Thanks to Mark Knibbs <markk@clara.co.uk> for CDTV Technical information
- *
- */
+* UAE - The Un*x Amiga Emulator
+*
+* CDTV DMAC/CDROM controller emulation
+*
+* Copyright 2004/2007-2010 Toni Wilen
+*
+* Thanks to Mark Knibbs <markk@clara.co.uk> for CDTV Technical information
+*
+*/
 
 //#define ROMHACK
 //#define ROMHACK2
@@ -31,10 +31,7 @@
 #include "threaddep/thread.h"
 #include "a2091.h"
 #include "uae.h"
-#include "sleep.h"
 #include "savestate.h"
-
-#ifdef CDTV
 
 /* DMAC CNTR bits. */
 #define CNTR_TCEN               (1<<7)
@@ -315,9 +312,9 @@ static void startplay (void)
 static int play_cdtrack (uae_u8 *p)
 {
 	int track_start = p[1];
-// REMOVEME: int index_start = p[2];
+	int index_start = p[2];
 	int track_end = p[3];
-// REMOVEME: int index_end = p[4];
+	int index_end = p[4];
 	int start_found, end_found;
 	uae_u32 start, end;
 	int j;
@@ -587,7 +584,7 @@ static void cdrom_command_thread (uae_u8 b)
 		break;
 	case 0x83:
 		if (cdrom_command_cnt_in == 7) {
-			memcpy (cdrom_command_output, MODEL_NAME, strlen (MODEL_NAME));
+			memcpy (cdrom_command_output, MODEL_NAME, strlen (MODEL_NAME)); 
 			cdrom_command_accepted (strlen (MODEL_NAME), s, &cdrom_command_cnt_in);
 			cd_finished = 1;
 		}
@@ -1229,8 +1226,6 @@ static void do_stch (void)
 	}
 }
 
-// REMOVEME:
-#if 0
 void bleh (void)
 {
 #if 0
@@ -1240,7 +1235,6 @@ void bleh (void)
 	do_stch();
 #endif
 }
-#endif // 0
 
 static void cdtv_reset_int (void)
 {
@@ -1796,7 +1790,7 @@ void cdtv_check_banks (void)
 uae_u8 *save_cdtv_dmac (int *len, uae_u8 *dstptr)
 {
 	uae_u8 *dstbak, *dst;
-
+	
 	if (!currprefs.cs_cdtvcd)
 		return NULL;
 	if (dstptr)
@@ -1840,7 +1834,7 @@ uae_u8 *save_cdtv (int *len, uae_u8 *dstptr)
 	if (!currprefs.cs_cdtvcd)
 		return NULL;
 
-	if (dstptr)
+	if (dstptr) 
 		dstbak = dst = dstptr;
 	else
 		dstbak = dst = xmalloc (uae_u8, 1000);
@@ -1890,7 +1884,7 @@ uae_u8 *restore_cdtv (uae_u8 *src)
 		cdtv_init ();
 	}
 	restore_u32 ();
-
+	
 	// tri-port
 	tp_a = restore_u8 ();
 	tp_b = restore_u8 ();
@@ -1947,5 +1941,4 @@ void restore_cdtv_finish (void)
 	}
 }
 
-#endif
 #endif
