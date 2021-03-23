@@ -141,7 +141,7 @@ TOOLS = src/tools/genblitter src/tools/genlinetoscr src/tools/build68k src/tools
 PROGS = uae $(TOOLS)
 GENFILES = src/blit.h src/blitfunc.h $(TOOLGEN_SRCS) $(CPUGEN_SRCS) $(CPUGEN_HDRS) \
            src/linetoscr.c cpugen.stamp
-UAE_CFLAGS += -Wall -std=gnu99 -D_GNU_SOURCE -pipe -Wno-unused-variable -Wno-unused-but-set-variable -O0 -g3
+UAE_CFLAGS += -Wall -std=gnu99 -D_GNU_SOURCE -pipe -Wno-unused-variable -Wno-unused-but-set-variable -Wno-pointer-sign -Wno-unused-function -O0 -g3
 UAE_LDFLAGS += -lz
 
 AR      = $(CROSS_COMPILE)ar
