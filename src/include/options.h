@@ -558,6 +558,8 @@ struct uae_prefs {
 	int dfxclickchannelmask;
 #endif
 
+	int win32_soundcard;
+
 	bool hide_cursor;				/* Whether to hide host WM cursor or not */
 
 	/* Target specific options */

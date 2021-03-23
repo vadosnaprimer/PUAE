@@ -1,16 +1,16 @@
 /*
- * UAE - The Un*x Amiga Emulator
- *
- * Paula audio emulation
- *
- * Copyright 1995, 1996, 1997 Bernd Schmidt
- * Copyright 1996 Marcus Sundberg
- * Copyright 1996 Manfred Thole
- * Copyright 2006 Toni Wilen
- *
- * new filter algorithm and anti&sinc interpolators by Antti S. Lankila
- *
- */
+* UAE - The Un*x Amiga Emulator
+*
+* Paula audio emulation
+*
+* Copyright 1995, 1996, 1997 Bernd Schmidt
+* Copyright 1996 Marcus Sundberg
+* Copyright 1996 Manfred Thole
+* Copyright 2006 Toni Wilen
+*
+* new filter algorithm and anti&sinc interpolators by Antti S. Lankila
+*
+*/
 
 #include "sysconfig.h"
 #include "sysdeps.h"
@@ -67,7 +67,7 @@ static bool debugchannel (int ch)
 }
 #endif
 
-STATIC_INLINE bool usehacks (void)
+STATIC_INLINE bool usehacks(void)
 {
 	return currprefs.cpu_model >= 68020 || currprefs.m68k_speed != 0;
 }
@@ -197,7 +197,7 @@ void audio_sampleripper (int mode)
 	struct ripped_sample *rs = ripped_samples;
 	int cnt = 1;
 	TCHAR path[MAX_DPATH], name[MAX_DPATH], filename[MAX_DPATH];
-	TCHAR underline[] = "_";
+	TCHAR underline[] = _T("_");
 	TCHAR extension[4];
 	struct zfile *wavfile;
 
@@ -303,7 +303,7 @@ int sound_available = 0;
 void (*sample_handler) (void);
 static void (*sample_prehandler) (unsigned long best_evtime);
 
-// REMOVEME: static float sample_evtime;
+float sample_evtime;
 float scaled_sample_evtime;
 
 static unsigned long last_cycles;
@@ -523,7 +523,7 @@ static void sinc_prehandler (unsigned long best_evtime)
 	int i, output;
 	struct audio_channel_data *acd;
 
-	for (i = 0; i < 4; i++) {
+	for (i = 0; i < 4; i++)  {
 		acd = &audio_channel[i];
 		int vol = acd->vol;
 		output = (acd->current_sample * vol) & acd->adk_mask;
@@ -558,7 +558,7 @@ STATIC_INLINE void samplexx_sinc_handler (int *datasp)
 	winsinc = winsinc_integral[n];
 
 
-	for (i = 0; i < 4; i += 1) {
+    for (i = 0; i < 4; i += 1) {
 		int j, v;
 		struct audio_channel_data *acd = &audio_channel[i];
 		/* The sum rings with harmonic components up to infinity... */
@@ -578,7 +578,7 @@ STATIC_INLINE void samplexx_sinc_handler (int *datasp)
 		else if (v < -32768)
 			v = -32768;
 		datasp[i] = v;
-	}
+    }
 }
 
 static void sample16i_sinc_handler (void)
@@ -767,7 +767,7 @@ STATIC_INLINE void make6ch (uae_s32 d0, uae_s32 d1, uae_s32 d2, uae_s32 d3)
 	PUT_SOUND_WORD (sum);
 }
 
-static void sample16ss_handler (void)
+void sample16ss_handler (void)
 {
 	uae_u32 data0 = audio_channel[0].current_sample;
 	uae_u32 data1 = audio_channel[1].current_sample;
@@ -800,7 +800,7 @@ static void sample16ss_handler (void)
 /* This interpolator examines sample points when Paula switches the output
 * voltage and computes the average of Paula's output */
 
-static void sample16ss_anti_handler (void)
+void sample16ss_anti_handler (void)
 {
 	int data0, data1, data2, data3;
 	int datas[4];
@@ -835,7 +835,7 @@ static void sample16si_anti_handler (void)
 	check_sound_buffers ();
 }
 
-static void sample16ss_sinc_handler (void)
+void sample16ss_sinc_handler (void)
 {
 	int data0, data1, data2, data3;
 	int datas[4];
@@ -1097,7 +1097,7 @@ static void audio_event_reset (void)
 	doublesample = 0;
 }
 
-static void audio_deactivate (void)
+void audio_deactivate (void)
 {
 	gui_data.sndbuf_status = 3;
 	gui_data.sndbuf = 0;
@@ -1298,6 +1298,8 @@ static void audio_state_channel2 (int nr, bool perfin)
 				write_log (_T("%d: INSTADMAOFF\n"), nr, M68K_GETPC);
 #endif
 			newsample (nr, (cdp->dat2 >> 0) & 0xff);
+//			if (napnav)
+//				setirq (nr, 91);
 			zerostate (nr);
 		}
 	}
@@ -1366,6 +1368,8 @@ static void audio_state_channel2 (int nr, bool perfin)
 		if (cdp->wlen != 1)
 			cdp->wlen = (cdp->wlen - 1) & 0xffff;
 		cdp->state = 5;
+		if (sampleripper_enabled)
+			do_samplerip (cdp);
 		break;
 	case 5:
 		cdp->evtime = MAX_EV;
@@ -1444,7 +1448,7 @@ static void audio_state_channel2 (int nr, bool perfin)
 #if DEBUG_AUDIO > 0
 				if (debugchannel (nr))
 					write_log (_T("%d: IDLE\n"), nr);
-#endif
+#endif			
 				zerostate (nr);
 				return;
 			}
@@ -1511,6 +1515,7 @@ static int sound_prefs_changed (void)
 	if (!config_changed)
 		return 0;
 	if (changed_prefs.produce_sound != currprefs.produce_sound
+		|| changed_prefs.win32_soundcard != currprefs.win32_soundcard
 		|| changed_prefs.sound_stereo != currprefs.sound_stereo
 		|| changed_prefs.sound_maxbsiz != currprefs.sound_maxbsiz
 		|| changed_prefs.sound_freq != currprefs.sound_freq
@@ -1582,6 +1587,7 @@ void set_audio (void)
 		close_sound ();
 
 	currprefs.produce_sound = changed_prefs.produce_sound;
+	currprefs.win32_soundcard = changed_prefs.win32_soundcard;
 	currprefs.sound_stereo = changed_prefs.sound_stereo;
 	currprefs.sound_auto = changed_prefs.sound_auto;
 	currprefs.sound_freq = changed_prefs.sound_freq;
@@ -1598,9 +1604,8 @@ void set_audio (void)
 
 	if (ch >= 0) {
 		if (currprefs.produce_sound >= 2) {
-#ifndef __native_client__
 			if (!init_audio ()) {
-				if (!sound_available) {
+				if (! sound_available) {
 					write_log (_T("Sound is not supported.\n"));
 				} else {
 					write_log (_T("Sorry, can't initialize sound.\n"));
@@ -1609,7 +1614,6 @@ void set_audio (void)
 					changed_prefs.produce_sound = 1;
 				}
 			}
-#endif
 		}
 		next_sample_evtime = scaled_sample_evtime;
 		last_cycles = get_cycles ();
@@ -1807,7 +1811,11 @@ void audio_hsync (void)
 {
 	if (!isaudio ())
 		return;
-	if (audio_work_to_do > 0 && currprefs.sound_auto) {
+	if (audio_work_to_do > 0 && currprefs.sound_auto
+#ifdef AVIOUTPUT
+			&& !avioutput_enabled
+#endif
+			) {
 		audio_work_to_do--;
 		if (audio_work_to_do == 0)
 			audio_deactivate ();
@@ -2054,7 +2062,6 @@ void audio_vsync (void)
 #endif
 }
 
-#ifdef SAVESTATE
 void restore_audio_finish (void)
 {
 	last_cycles = get_cycles ();
@@ -2092,9 +2099,6 @@ uae_u8 *restore_audio (int nr, uae_u8 *src)
 	return src;
 }
 
-#endif /* SAVESTATE */
-
-#if defined SAVESTATE || defined DEBUGGER
 uae_u8 *save_audio (int nr, int *len, uae_u8 *dstptr)
 {
 	struct audio_channel_data *acd = audio_channel + nr;
@@ -2119,4 +2123,3 @@ uae_u8 *save_audio (int nr, int *len, uae_u8 *dstptr)
 	*len = dst - dstbak;
 	return dstbak;
 }
-#endif /* SAVESTATE || DEBUGGER */
