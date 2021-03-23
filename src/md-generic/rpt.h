@@ -10,9 +10,15 @@
 #ifndef EUAE_MACHDEP_RPT_H
 #define EUAE_MACHDEP_RPT_H
 
+STATIC_INLINE uae_s64 uae_time(void) {
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return ts.tv_sec * 1000000000LL + ts.tv_nsec;
+}
+
 STATIC_INLINE uae_s32 read_processor_time (void)
 {
-    return 0;
+    return uae_time();
 }
 
 STATIC_INLINE frame_time_t machdep_gethrtime (void)
