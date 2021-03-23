@@ -15,7 +15,7 @@
 #include <assert.h>
 #include <math.h>
 
-#include "cfgfile.h"
+#include "options.h"
 #include "uae.h"
 #include "gensound.h"
 #include "audio.h"
@@ -57,7 +57,6 @@
 #include "blkdev.h"
 #include "sampler.h"
 #include "hrtimer.h"
-#include "sleep.h"
 #include "misc.h"
 
 #define CUSTOM_DEBUG 0
