@@ -3,23 +3,8 @@
 /* Define if building universal (internal helper macro) */
 #undef AC_APPLE_UNIVERSAL_BUILD
 
-/* we want ecs_denise */
-#undef ECS_DENISE
-
-/* we want hardware graphics board */
-#undef GFXBOARD
-
-/* CPU supports 3DNOW */
-#undef HAVE_3DNOW
-
 /* Define to 1 if you have the `alarm' function. */
 #undef HAVE_ALARM
-
-/* CPU supports AVX1 */
-#undef HAVE_AVX
-
-/* CPU supports AVX2 */
-#undef HAVE_AVX2
 
 /* Define to 1 if you have the 'bswap_16' function. */
 #undef HAVE_BSWAP_16
@@ -29,9 +14,6 @@
 
 /* Define to 1 if you have the <byteswap.h> header file. */
 #undef HAVE_BYTESWAP_H
-
-/* Define to 1 if you have the <caps/capsimage.h> header file. */
-#undef HAVE_CAPS_CAPSIMAGE_H
 
 /* Define to 1 if you have the <curses.h> header file. */
 #undef HAVE_CURSES_H
@@ -54,9 +36,6 @@
 
 /* Define to 1 if you have the <fcntl.h> header file. */
 #undef HAVE_FCNTL_H
-
-/* Define to 1 if you have the CAPS framework. */
-#undef HAVE_FRAMEWORK_CAPSIMAGE
 
 /* Define to 1 if you have the `gettimeofday' function. */
 #undef HAVE_GETTIMEOFDAY
@@ -92,9 +71,6 @@
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
 
-/* CPU supports MMX */
-#undef HAVE_MMX
-
 /* Define to 1 if you have the `nanosleep' function. */
 #undef HAVE_NANOSLEEP
 
@@ -106,9 +82,6 @@
 
 /* Define to 1 if you have the <pcap.h> header file. */
 #undef HAVE_PCAP_H
-
-/* Define if you have POSIX threads libraries and header files. */
-#undef HAVE_PTHREAD
 
 /* Define to 1 if you have the `readdir_r' function. */
 #undef HAVE_READDIR_R
@@ -124,30 +97,6 @@
 
 /* Define to 1 if you have the `sleep' function. */
 #undef HAVE_SLEEP
-
-/* CPU supports SSE */
-#undef HAVE_SSE
-
-/* CPU supports SSE2 */
-#undef HAVE_SSE2
-
-/* CPU supports SSE3 */
-#undef HAVE_SSE3
-
-/* CPU supports SSE4A */
-#undef HAVE_SSE4A
-
-/* CPU supports SSE4_1 */
-#undef HAVE_SSE4_1
-
-/* CPU supports SSE4_2 */
-#undef HAVE_SSE4_2
-
-/* CPU supports SSE5 */
-#undef HAVE_SSE5
-
-/* CPU supports SSSE3 */
-#undef HAVE_SSSE3
 
 /* Define to 1 if stdbool.h conforms to C99. */
 #undef HAVE_STDBOOL_H
@@ -300,9 +249,6 @@
 /* Define to 1 if the system has the type `_Bool'. */
 #undef HAVE__BOOL
 
-/* Name of package */
-#undef PACKAGE
-
 /* Define to the address where bug reports for this package should be sent. */
 #undef PACKAGE_BUGREPORT
 
@@ -323,10 +269,6 @@
 
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
-
-/* Define to the necessary symbol if this constant uses a non-standard name on
-   your system. */
-#undef PTHREAD_CREATE_JOINABLE
 
 /* Define as the return type of signal handlers (`int' or `void'). */
 #undef RETSIGTYPE
@@ -417,9 +359,6 @@
 #endif
 
 
-/* Version number of package */
-#undef VERSION
-
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
    significant byte first (like Motorola and SPARC, unlike Intel). */
 #if defined AC_APPLE_UNIVERSAL_BUILD
@@ -431,9 +370,6 @@
 #  undef WORDS_BIGENDIAN
 # endif
 #endif
-
-/* Define to 1 if the X Window System is missing or not being used. */
-#undef X_DISPLAY_MISSING
 
 /* Enable large inode numbers on Mac OS X 10.5.  */
 #ifndef _DARWIN_USE_64_BIT_INODE
@@ -473,9 +409,6 @@
 
 /* Define to `unsigned int' if <sys/types.h> does not define. */
 #undef size_t
-
-/* Substitute for socklen_t */
-#undef socklen_t
 
 /* Define to unsigned long or unsigned long long if <stdint.h> and
    <inttypes.h> don't define. */
