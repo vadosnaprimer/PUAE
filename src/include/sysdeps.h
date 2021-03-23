@@ -373,6 +373,7 @@ extern void mallocemu_free (void *ptr);
 #endif
 
 extern void console_out (const char *, ...);
+#define console_out_f(...) printf(__VA_ARGS__)
 extern void console_flush (void);
 extern int  console_get (char *, int);
 extern void f_out (void *, const char *, ...);

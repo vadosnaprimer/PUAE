@@ -236,6 +236,4 @@ extern int current_maxvpos (void);
 extern struct chipset_refresh *get_chipset_refresh (void);
 extern void compute_framesync (void);
 
-#define HSYNCTIME (maxhpos * CYCLE_UNIT);
-
 #endif /* CUSTOM_H */
