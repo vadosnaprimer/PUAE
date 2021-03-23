@@ -20,16 +20,6 @@
 */
 #include "sysconfig.h"
 
-#if 0
-#if SIZEOF_VOID_P == 8
-typedef long int          uae_intptr;
-typedef unsigned long int uae_uintptr;
-#elif SIZEOF_VOID_P == 4
-typedef int               uae_intptr;
-typedef unsigned int      uae_uintptr;
-#endif
-#endif
-
 #if (SIZEOF_VOID_P != 8) && (SIZEOF_VOID_P != 4)
 # error "Unknown/unsupported pointer size"
 #endif
@@ -39,17 +29,8 @@ typedef long long uae_s64;
 typedef unsigned long long uae_u64;
 # define VAL64(a)  (a ## LL)
 # define UVAL64(a) (a ## uLL)
-#elif SIZEOF___INT64 == 8
-typedef __int64 long uae_s64;
-typedef unsigned __int64 uae_u64;
-# define VAL64(a)  (a)
-# define UVAL64(a) (a)
-#elif SIZEOF_LONG == 8
-#warning "if you reach this code probably something went wrong..."
-typedef long uae_s64;
-typedef unsigned long uae_u64;
-# define VAL64(a)  (a ## l)
-# define UVAL64(a) (a ## ul)
+#else
+# error "unsupported length of long long!"
 #endif
 
 

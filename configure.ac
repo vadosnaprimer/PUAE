@@ -106,7 +106,6 @@ AC_CHECK_SIZEOF(short, 2)
 AC_CHECK_SIZEOF(int, 4)
 AC_CHECK_SIZEOF(long, 4)
 AC_CHECK_SIZEOF(long long, 8)
-AC_CHECK_SIZEOF(__int64, 8)
 AC_CHECK_SIZEOF(void *)
 
 if test "${ac_cv_c_have_long_double}" = "yes" ; then
