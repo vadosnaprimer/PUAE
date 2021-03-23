@@ -1,13 +1,13 @@
 /*
- * UAE - The Un*x Amiga Emulator
- *
- * AutoConfig (tm) Expansions (ZorroII/III)
- *
- * Copyright 1996,1997 Stefan Reinauer <stepan@linux.de>
- * Copyright 1997 Brian King <Brian_King@Mitel.com>
- *   - added gfxcard code
- *
- */
+* UAE - The Un*x Amiga Emulator
+*
+* AutoConfig (tm) Expansions (ZorroII/III)
+*
+* Copyright 1996,1997 Stefan Reinauer <stepan@linux.de>
+* Copyright 1997 Brian King <Brian_King@Mitel.com>
+*   - added gfxcard code
+*
+*/
 
 //#define EXP_DEBUG
 
@@ -57,11 +57,11 @@
 #define Z3_MEM_1GB		0x06
 
 #define chainedconfig	0x08 /* Next config is part of the same card */
-#define rom_card		0x10 /* ROM vector is valid */
-#define add_memory		0x20 /* Link RAM into free memory list */
+#define rom_card	0x10 /* ROM vector is valid */
+#define add_memory	0x20 /* Link RAM into free memory list */
 
-#define zorroII			0xc0 /* Type of Expansion Card */
-#define zorroIII		0x80
+#define zorroII		0xc0 /* Type of Expansion Card */
+#define zorroIII	0x80
 
 /* ********************************************************** */
 /* 04 - 06 & 10-16 */
@@ -69,8 +69,8 @@
 /* Manufacturer */
 #define commodore_g	 513 /* Commodore Braunschweig (Germany) */
 #define commodore	 514 /* Commodore West Chester */
-#define gvp			2017 /* GVP */
-#define ass			2102 /* Advanced Systems & Software */
+#define gvp		2017 /* GVP */
+#define ass		2102 /* Advanced Systems & Software */
 #define hackers_id	2011 /* Special ID for test cards */
 
 /* Card Type */
@@ -151,23 +151,23 @@ static uae_u16 uae_id;
 /* ********************************************************** */
 
 /* Please note: ZorroIII implementation seems to work different
- * than described in the HRM. This claims that ZorroIII config
- * address is 0xff000000 while the ZorroII config space starts
- * at 0x00e80000. In reality, both, Z2 and Z3 cards are
- * configured in the ZorroII config space. Kickstart 3.1 doesn't
- * even do a single read or write access to the ZorroIII space.
- * The original Amiga include files tell the same as the HRM.
- * ZorroIII: If you set ext_size in er_Flags and give a Z2-size
- * in er_Type you can very likely add some ZorroII address space
- * to a ZorroIII card on a real Amiga. This is not implemented
- * yet.
- *  -- Stefan
- *
- * Surprising that 0xFF000000 isn't used. Maybe it depends on the
- * ROM. Anyway, the HRM says that Z3 cards may appear in Z2 config
- * space, so what we are doing here is correct.
- *  -- Bernd
- */
+* than described in the HRM. This claims that ZorroIII config
+* address is 0xff000000 while the ZorroII config space starts
+* at 0x00e80000. In reality, both, Z2 and Z3 cards are
+* configured in the ZorroII config space. Kickstart 3.1 doesn't
+* even do a single read or write access to the ZorroIII space.
+* The original Amiga include files tell the same as the HRM.
+* ZorroIII: If you set ext_size in er_Flags and give a Z2-size
+* in er_Type you can very likely add some ZorroII address space
+* to a ZorroIII card on a real Amiga. This is not implemented
+* yet.
+*  -- Stefan
+*
+* Surprising that 0xFF000000 isn't used. Maybe it depends on the
+* ROM. Anyway, the HRM says that Z3 cards may appear in Z2 config
+* space, so what we are doing here is correct.
+*  -- Bernd
+*/
 
 /* Autoconfig address space at 0xE80000 */
 static uae_u8 expamem[65536];
@@ -270,9 +270,7 @@ static void expamem_init_last (void)
 {
 	expamem_init_clear2 ();
 	write_log (_T("Memory map after autoconfig:\n"));
-#ifdef DEBUGGER
 	memory_map_dump ();
-#endif
 }
 
 void expamem_next (void)
@@ -484,8 +482,8 @@ static void expamem_init_cd32fmv (void)
 /* ********************************************************** */
 
 /*
- *  Fast Memory
- */
+*  Fast Memory
+*/
 
 
 MEMORY_FUNCTIONS(fastmem);
@@ -501,8 +499,8 @@ addrbank fastmem_bank = {
 #ifdef CATWEASEL
 
 /*
- * Catweasel ZorroII
- */
+* Catweasel ZorroII
+*/
 
 static uae_u32 REGPARAM3 catweasel_lget (uaecptr) REGPARAM;
 static uae_u32 REGPARAM3 catweasel_wget (uaecptr) REGPARAM;
@@ -631,9 +629,9 @@ static void expamem_init_catweasel (void)
 #ifdef FILESYS
 
 /*
- * Filesystem device ROM
- * This is very simple, the Amiga shouldn't be doing things with it.
- */
+* Filesystem device ROM
+* This is very simple, the Amiga shouldn't be doing things with it.
+*/
 
 static uae_u32 REGPARAM3 filesys_lget (uaecptr) REGPARAM;
 static uae_u32 REGPARAM3 filesys_wget (uaecptr) REGPARAM;
@@ -724,8 +722,8 @@ static addrbank filesys_bank = {
 #endif /* FILESYS */
 
 /*
- *  Z3fastmem Memory
- */
+*  Z3fastmem Memory
+*/
 
 MEMORY_FUNCTIONS(z3fastmem);
 MEMORY_FUNCTIONS(z3fastmem2);
@@ -755,8 +753,8 @@ addrbank z3chipmem_bank = {
 /* ********************************************************** */
 
 /*
- *     Expansion Card (ZORRO II) for 1/2/4/8 MB of Fast Memory
- */
+*     Expansion Card (ZORRO II) for 1/2/4/8 MB of Fast Memory
+*/
 
 static void expamem_map_fastcard (void)
 {
@@ -808,8 +806,8 @@ static void expamem_init_fastcard (void)
 #ifdef FILESYS
 
 /*
- * Filesystem device
- */
+* Filesystem device
+*/
 
 static void expamem_map_filesys (void)
 {
@@ -875,8 +873,8 @@ static void expamem_init_filesys (void)
 #endif
 
 /*
- * Zorro III expansion memory
- */
+* Zorro III expansion memory
+*/
 
 static void expamem_map_z3fastmem_2 (addrbank *bank, uaecptr *startp, uae_u32 size, uae_u32 allocated, int chip)
 {
@@ -964,8 +962,8 @@ static void expamem_init_z3fastmem2 (void)
 
 #ifdef PICASSO96
 /*
- *  Fake Graphics Card (ZORRO III) - BDK
- */
+*  Fake Graphics Card (ZORRO III) - BDK
+*/
 
 static void expamem_map_gfxcard (void)
 {
@@ -1060,7 +1058,7 @@ static bool mapped_malloc_dynamic (uae_u32 *currpsize, uae_u32 *changedpsize, ad
 			bank->allocated = alloc;
 			return true;
 		}
-		write_log (_T("Out of memory for %s, %d bytes, %d MB. Will try %d bytes\n"), name, alloc, alloc/0x100000, alloc/2);
+		write_log (_T("Out of memory for %s, %d bytes.\n"), name, alloc);
 		alloc /= 2;
 	}
 
@@ -1189,12 +1187,10 @@ static uaecptr check_boot_rom (void)
 		if (valid_address (RTAREA_DEFAULT, 65536))
 			b = RTAREA_BACKUP;
 	}
-#ifdef FILESYS
 	if (nr_directory_units (NULL))
 		return b;
 	if (nr_directory_units (&currprefs))
 		return b;
-#endif
 	if (currprefs.socket_emu)
 		return b;
 	if (currprefs.uaeserial)
@@ -1206,6 +1202,8 @@ static uaecptr check_boot_rom (void)
 	if (currprefs.input_tablet > 0)
 		return b;
 	if (currprefs.rtgmem_size)
+		return b;
+	if (currprefs.win32_automount_removable)
 		return b;
 	if (currprefs.chipmem_size > 2 * 1024 * 1024)
 		return b;
@@ -1315,7 +1313,6 @@ void expamem_reset (void)
 		card_map[cardno++] = NULL;
 	}
 #endif
-
 #ifdef CDTV
 	if (currprefs.cs_cdtvcd) {
 		card_name[cardno] = _T("CDTV DMAC");
