@@ -38,7 +38,6 @@
 #endif // __cplusplus
 
 #define UAE_RAND_MAX RAND_MAX
-#define ECS_DENISE
 
 #ifdef JIT
 #define NATMEM_OFFSET natmem_offset
