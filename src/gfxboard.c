@@ -32,6 +32,8 @@
 #include "rommgr.h"
 #include "zfile.h"
 #include "gfxboard.h"
+#include "picasso96.h"
+#include "misc.h"
 
 #include "qemuvga/qemuuaeglue.h"
 #include "qemuvga/vga.h"
@@ -369,7 +371,8 @@ void gfxboard_vsync_handler (void)
 	}
 
 	if (monswitch) {
-		picasso_getwritewatch (vram_start_offset);
+		#warning "picasso_getwritewatch is suppoded to take vram_start_offset as param!"
+		picasso_getwritewatch (/*vram_start_offset*/);
 		if (fullrefresh)
 			vga.vga.graphic_mode = -1;
 		vga.vga.hw_ops->gfx_update(&vga);

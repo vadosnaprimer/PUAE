@@ -204,13 +204,13 @@ struct my_opendir_s *my_opendir (const TCHAR *name)
 	return mod;
 */
 	/// FIXME: opendir returns struct DIR*, please translate instead of casting.
-	return (struct my_opendir_s*)opendir(name);
+	return (void*)opendir(name);
 }
 
 void my_closedir (struct my_opendir_s *mod) {
 	if (mod)
 		/// FIXME: closedir needs struct DIR*, please translate instead of casting.
-		closedir((struct DIR*)mod);
+		closedir((void*)mod);
 //	xfree (mod);
 }
 
@@ -226,7 +226,7 @@ struct dirent* my_readdir (struct my_opendir_s *mod, TCHAR *name) {
 	_tcscpy (name, mod->fd.cFileName);
 */
 	///FIXME: readdir needs struct DIR*, please translate instead of casting.
-	return readdir((struct DIR*)mod);
+	return readdir((void*)mod);
 }
 
 #if 0

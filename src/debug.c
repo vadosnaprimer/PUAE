@@ -81,7 +81,6 @@ int safe_addr (uaecptr addr, int size);
 #define console_out               printf
 #define console_flush()           fflush( stdout )
 #define console_get( input, len ) fgets( input, len, stdin )
-#define console_out_f printf
 
 void deactivate_debugger (void)
 {
@@ -2186,7 +2185,7 @@ static int memwatch_func (uaecptr addr, int rwi, int size, uae_u32 *valp, uae_u3
 					mask <<= shift;
 				}
 				*valp = (sval & mask) | ((*valp) & ~mask);
-				write_log (_T("%p %p %08x %08x %d\n"), addr, m->addr, *valp, mask, shift);
+				write_log (_T("%" FMTcPTR " %" FMTcPTR " %08x %08x %d\n"), addr, m->addr, *valp, mask, shift);
 				return 1;
 			}
 			return 0;
@@ -2643,7 +2642,7 @@ static const struct mw_acc memwatch_access_masks[] =
 	{ MW_MASK_SPR_5, _T("SPR5") },
 	{ MW_MASK_SPR_6, _T("SPR6") },
 	{ MW_MASK_SPR_7, _T("SPR7") },
-	NULL
+	0LL
 };
 
 static TCHAR *getsizechar (int size)

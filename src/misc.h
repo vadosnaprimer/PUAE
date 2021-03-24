@@ -43,6 +43,7 @@ void doflashscreen (void);
 int scan_roms (int show);
 void enumeratedisplays (void);
 void sortdisplays (void);
+void fetch_rompath (TCHAR *out, int size);
 
 #endif // MISC_H
 

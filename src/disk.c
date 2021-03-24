@@ -1322,8 +1322,8 @@ static void drive_step (drive * drv, int step_direction)
 	if (!drive_empty (drv))
 		drv->dskchange = 0;
 	if (drv->steplimit && get_cycles() - drv->steplimitcycle < MIN_STEPLIMIT_CYCLE) {
-		write_log (_T(" step ignored drive %d, %d\n"),
-			drv - floppy, (get_cycles() - drv->steplimitcycle) / CYCLE_UNIT);
+		write_log (_T(" step ignored drive %ld, %ld\n"),
+			(long)(drv - floppy), (long)(get_cycles() - drv->steplimitcycle) / CYCLE_UNIT);
 		return;
 	}
 	/* A1200's floppy drive needs at least 30 raster lines between steps

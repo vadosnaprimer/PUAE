@@ -56,6 +56,7 @@
 #include "blkdev.h"
 #include "isofs_api.h"
 #include "scsi.h"
+#include "picasso96.h"
 #ifdef TARGET_AMIGAOS
 #include <dos/dos.h>
 #include <proto/dos.h>
@@ -3757,7 +3758,7 @@ static void move_exkeys (Unit *unit, a_inode *from, a_inode *to)
 static bool get_statinfo (Unit *unit, a_inode *aino, struct mystat *statbuf)
 {
 	bool ok = true;
-	memset (statbuf, 0, sizeof statbuf);
+	memset (statbuf, 0, sizeof *statbuf);
 	/* No error checks - this had better work. */
 	if (unit->volflags & MYVOLUMEINFO_ARCHIVE)
 		ok = zfile_stat_archive (aino->nname, statbuf) != 0;
@@ -3969,7 +3970,7 @@ static void record_check_waiting (Unit *unit)
 					prev->next = lr->next;
 				else
 					unit->waitingrecords = lr->next;
-				write_log (_T("queued record released '%s',%d,%d,%d,%d\n"), k->aino->nname, lr->pos, lr->len, lr->mode, lr->timeout);
+				write_log (_T("queued record released '%s',%ld,%ld,%ld,%ld\n"), k->aino->nname, (long)lr->pos, (long)lr->len, (long)lr->mode, (long)lr->timeout);
 				// mark packet as complete
 				put_long (lr->msg + 4, 0xffffffff);
 				xfree (lr);
@@ -4238,7 +4239,8 @@ static bool filesys_name_invalid (const TCHAR *fn)
 static int action_examine_all_do (Unit *unit, uaecptr lock, ExAllKey *eak, uaecptr exalldata, uae_u32 exalldatasize, uae_u32 type, uaecptr control)
 {
 	a_inode *aino, *base = NULL;
-	struct dirent *ok = NULL;
+	int ok = 0;
+	struct dirent *de = NULL;
 	uae_u32 err;
 	struct fs_dirhandle *d;
 	TCHAR fn[MAX_DPATH];
@@ -4253,28 +4255,28 @@ static int action_examine_all_do (Unit *unit, uaecptr lock, ExAllKey *eak, uaecp
 		if (!eak->fn) {
 			do {
 				if (d->fstype == FS_ARCHIVE)
-					/*fixme*/ ok = zfile_readdir_archive (d->zd, fn);
+					ok = zfile_readdir_archive (d->zd, fn);
 				else if (d->fstype == FS_DIRECTORY)
-					/*fixme*/ ok = readdir (d->od);
+					ok = !!(de = readdir (d->od));
 				/*else if (d->fstype == FS_CDFS)
 					ok = isofs_readdir (d->isod, fn, &uniq);*/
 				else
 					ok = 0;
-			} while (ok && d->fstype == FS_DIRECTORY && (filesys_name_invalid (ok->d_name) || fsdb_name_invalid (ok->d_name)));
+			} while (ok && d->fstype == FS_DIRECTORY && (filesys_name_invalid (de->d_name) || fsdb_name_invalid (de->d_name)));
 			if (!ok)
 				return 0;
 		} else {
-			_tcscpy (ok->d_name, eak->fn);
+			_tcscpy (de->d_name, eak->fn);
 			xfree (eak->fn);
 			eak->fn = NULL;
 		}
-		aino = lookup_child_aino_for_exnext (unit, base, ok->d_name, &err, uniq);
+		aino = lookup_child_aino_for_exnext (unit, base, de->d_name, &err, uniq);
 		if (!aino)
 			return 0;
 		eak->id = unit->exallid++;
 		put_long (control + 4, eak->id);
 		if (!exalldo (exalldata, exalldatasize, type, control, unit, aino)) {
-			eak->fn = my_strdup (ok->d_name); /* no space in exallstruct, save current entry */
+			eak->fn = my_strdup (de->d_name); /* no space in exallstruct, save current entry */
 			break;
 		}
 	}
@@ -4481,7 +4483,7 @@ static void action_examine_object (Unit *unit, dpacket packet)
 	uaecptr info = GET_PCK_ARG2 (packet) << 2;
 	a_inode *aino = 0;
 
-	TRACE((_T("ACTION_EXAMINE_OBJECT(0x%lx,0x%lx)\n"), lock, info));
+	TRACE((_T("ACTION_EXAMINE_OBJECT(0x%" FMTcPTR ",0x%" FMTcPTR ")\n"), lock, info));
 	DUMPLOCK(unit, lock);
 
 	if (lock != 0)
@@ -4516,26 +4518,27 @@ static void populate_directory (Unit *unit, a_inode *base)
 	for (;;) {
 		uae_u64 uniq = 0;
 		TCHAR fn[MAX_DPATH];
-		struct dirent *ok = NULL;
+		struct dirent *de = NULL;
+		int ok = 0;
 		uae_u32 err;
 
 		/* Find next file that belongs to the Amiga fs (skipping things
 		like "..", "." etc.  */
 		do {
 			if (d->fstype == FS_ARCHIVE)
-				/*fixme*/ok = zfile_readdir_archive (d->zd, fn);
+				ok = zfile_readdir_archive (d->zd, fn);
 			else if (d->fstype == FS_DIRECTORY)
-				/*fixme*/ok = readdir (d->od);
+				ok = !!(de = readdir (d->od));
 			else if (d->fstype == FS_CDFS)
 			;//	ok = isofs_readdir (d->isod, fn, &uniq);
 			else
 				ok = 0;
-		} while (ok && d->fstype == FS_DIRECTORY && (filesys_name_invalid (ok->d_name) || fsdb_name_invalid (ok->d_name)));
+		} while (ok && d->fstype == FS_DIRECTORY && (filesys_name_invalid (de->d_name) || fsdb_name_invalid (de->d_name)));
 		if (!ok)
 			break;
 		/* This calls init_child_aino, which will notice that the parent is
 		being ExNext()ed, and it will increment the locked counts.  */
-		aino = lookup_child_aino_for_exnext (unit, base, ok->d_name, &err, uniq);
+		aino = lookup_child_aino_for_exnext (unit, base, de->d_name, &err, uniq);
 	}
 	fs_closedir (d);
 }
@@ -4571,7 +4574,7 @@ static void action_examine_next (Unit *unit, dpacket packet, bool largefilesize)
 	ExamineKey *ek;
 	uae_u32 uniq;
 
-	TRACE((_T("ACTION_EXAMINE_NEXT(0x%lx,0x%lx,%d)\n"), lock, info, largefilesize));
+	TRACE((_T("ACTION_EXAMINE_NEXT(0x%" FMTcPTR ",0x%" FMTcPTR ",%d)\n"), lock, info, largefilesize));
 	gui_flicker_led (UNIT_LED(unit), unit->unit, 1);
 	DUMPLOCK(unit, lock);
 
@@ -5076,7 +5079,7 @@ static void
 		whence = SEEK_SET;
 
 	cur = k->file_pos;
-	TRACE((_T("ACTION_SEEK(%s,%d,%d)=%d\n"), k->aino->nname, pos, mode, cur));
+	TRACE((_T("ACTION_SEEK(%s,%ld,%ld)=%ld\n"), k->aino->nname, (long)pos, (long)mode, (long)cur));
 	gui_flicker_led (UNIT_LED(unit), unit->unit, 1);
 
 	filesize = fs_fsize64 (k->fd);
@@ -5112,7 +5115,7 @@ static void
 	a_inode *a;
 	int err;
 
-	TRACE((_T("ACTION_SET_PROTECT(0x%lx,\"%s\",0x%lx)\n"), lock, bstr (unit, name), mask));
+	TRACE((_T("ACTION_SET_PROTECT(0x%" FMTcPTR ",\"%s\",0x%lx)\n"), lock, bstr (unit, name), (long)mask));
 
 	if (unit->ui.readonly || unit->ui.locked) {
 		PUT_PCK_RES1 (packet, DOS_FALSE);
@@ -5176,7 +5179,7 @@ static void action_set_comment (Unit * unit, dpacket packet)
 			commented = NULL;
 		}
 	}
-	TRACE ((_T("ACTION_SET_COMMENT(0x%lx,\"%s\")\n"), lock, commented));
+	TRACE ((_T("ACTION_SET_COMMENT(0x%" FMTcPTR ",\"%s\")\n"), lock, commented));
 
 	a = find_aino (unit, lock, bstr (unit, name), &err);
 	if (err != 0) {
@@ -5213,7 +5216,7 @@ static void
 	uaecptr lock1 = GET_PCK_ARG1 (packet) << 2;
 	uaecptr lock2 = GET_PCK_ARG2 (packet) << 2;
 
-	TRACE((_T("ACTION_SAME_LOCK(0x%lx,0x%lx)\n"), lock1, lock2));
+	TRACE((_T("ACTION_SAME_LOCK(0x%" FMTcPTR ",0x%" FMTcPTR ")\n"), lock1, lock2));
 	DUMPLOCK(unit, lock1); DUMPLOCK(unit, lock2);
 
 	if (!lock1 || !lock2) {
@@ -5240,7 +5243,7 @@ static void
 	a_inode *a = NULL;
 // REMOVEME: a_inode *olda = NULL;
 	int err = 0;
-	TRACE((_T("ACTION_CHANGE_MODE(0x%lx,%d,%d)\n"), object, type, mode));
+	TRACE((_T("ACTION_CHANGE_MODE(0x%" FMTcPTR ",%ld,%ld)\n"), object, (long)type, (long)mode));
 
 	if (! object || (type != CHANGE_FH && type != CHANGE_LOCK)) {
 		PUT_PCK_RES1 (packet, DOS_FALSE);
@@ -5329,7 +5332,7 @@ static void
 {
 	uaecptr lock = GET_PCK_ARG1 (packet) << 2;
 
-	TRACE((_T("ACTION_PARENT(0x%lx)\n"),lock));
+	TRACE((_T("ACTION_PARENT(0x%" FMTcPTR ")\n"),lock));
 
 	if (!lock) {
 		PUT_PCK_RES1 (packet, 0);
@@ -5348,7 +5351,7 @@ static void
 	a_inode *aino;
 	int err;
 
-	TRACE((_T("ACTION_CREATE_DIR(0x%lx,\"%s\")\n"), lock, bstr (unit, name)));
+	TRACE((_T("ACTION_CREATE_DIR(0x%" FMTcPTR ",\"%s\")\n"), lock, bstr (unit, name)));
 
 	if (unit->ui.readonly || unit->ui.locked) {
 		PUT_PCK_RES1 (packet, DOS_FALSE);
@@ -5397,8 +5400,8 @@ static void
 	a_inode *aino = 0;
 	uaecptr info = GET_PCK_ARG2 (packet) << 2;
 
-	TRACE((_T("ACTION_EXAMINE_FH(0x%lx,0x%lx,%d)\n"),
-		GET_PCK_ARG1 (packet), GET_PCK_ARG2 (packet), largefilesize ));
+	TRACE((_T("ACTION_EXAMINE_FH(0x%lx,0x%lx,%ld)\n"),
+		(long)GET_PCK_ARG1 (packet), (long)GET_PCK_ARG2 (packet), (long)largefilesize ));
 
 	k = lookup_key (unit, GET_PCK_ARG1 (packet));
 	if (k != 0)
@@ -5426,7 +5429,7 @@ static void
 	if (mode < 0)
 		whence = SEEK_SET;
 
-	TRACE((_T("ACTION_SET_FILE_SIZE(0x%lx, %d, 0x%x)\n"), GET_PCK_ARG1 (packet), offset, mode));
+	TRACE((_T("ACTION_SET_FILE_SIZE(0x%lx, %ld, 0x%lx)\n"), (long)GET_PCK_ARG1 (packet), (long)offset, (long)mode));
 
 	k = lookup_key (unit, GET_PCK_ARG1 (packet));
 	if (k == 0) {
@@ -5841,7 +5844,7 @@ static void action_change_file_position64 (Unit *unit, dpacket packet)
 	if (mode < 0)
 		whence = SEEK_SET;
 
-	TRACE((_T("ACTION_CHANGE_FILE_POSITION64(%s,%lld,%d)\n"), k->aino->nname, pos, mode));
+	TRACE((_T("ACTION_CHANGE_FILE_POSITION64(%s,%lld,%ld)\n"), k->aino->nname, pos, (long)mode));
 	gui_flicker_led (UNIT_LED(unit), unit->unit, 1);
 
 	cur = k->file_pos;
@@ -5906,7 +5909,7 @@ static void action_change_file_size64 (Unit *unit, dpacket packet)
 	if (mode < 0)
 		whence = SEEK_SET;
 
-	TRACE((_T("ACTION_CHANGE_FILE_SIZE64(0x%lx, %lld, 0x%x)\n"), GET_PCK64_ARG1 (packet), offset, mode));
+	TRACE((_T("ACTION_CHANGE_FILE_SIZE64(0x%lx, %lld, 0x%lx)\n"), (long)GET_PCK64_ARG1 (packet), (long long)offset, (long)mode));
 
 	k = lookup_key (unit, GET_PCK64_ARG1 (packet));
 	if (k == 0) {
@@ -5975,7 +5978,7 @@ static void action_examine_object64(Unit *unit, dpacket packet)
 	uaecptr info = GET_PCK_ARG2 (packet) << 2;
 	a_inode *aino = 0;
 
-	TRACE((_T("ACTION_EXAMINE_OBJECT(0x%lx,0x%lx)\n"), lock, info));
+	TRACE((_T("ACTION_EXAMINE_OBJECT(0x%" FMTcPTR ",0x%" FMTcPTR ")\n"), lock, info));
 	DUMPLOCK(unit, lock);
 
 	if (lock != 0)
@@ -5998,7 +6001,7 @@ static void action_set_file_size64(Unit *unit, dpacket packet)
 	if (mode < 0)
 		whence = SEEK_SET;
 
-	TRACE((_T("ACTION_SET_FILE_SIZE64(0x%lx, %lld, 0x%x)\n"), GET_PCK_ARG1 (packet), offset, mode));
+	TRACE((_T("ACTION_SET_FILE_SIZE64(0x%lx, %lld, 0x%lx)\n"), (long)GET_PCK_ARG1 (packet), (long long)offset, (long)mode));
 
 	k = lookup_key (unit, GET_PCK_ARG1 (packet));
 	if (k == 0) {
@@ -6055,7 +6058,7 @@ static void action_seek64(Unit *unit, dpacket packet)
 	if (mode < 0)
 		whence = SEEK_SET;
 
-	TRACE((_T("ACTION_SEEK64(%s,%lld,%d)\n"), k->aino->nname, pos, mode));
+	TRACE((_T("ACTION_SEEK64(%s,%lld,%ld)\n"), k->aino->nname, (long long)pos, (long)mode));
 	gui_flicker_led (UNIT_LED(unit), unit->unit, 1);
 
 	cur = k->file_pos;
@@ -7013,7 +7016,7 @@ static void dump_partinfo (struct hardfiledata *hfd, uae_u8 *pp)
 		spt, reserved, lowcyl, highcyl, (uae_u32)(size >> 20));
 	write_log (_T("Buffers: %d, BufMemType: %08x, MaxTransfer: %08x, Mask: %08x, BootPri: %d\n"),
 		rl (pp + 44), rl (pp + 48), rl (pp + 52), rl (pp + 56), rl (pp + 60));
-	write_log (_T("Total blocks: %d, Total disk blocks: %d\n"), surfaces * spt * (highcyl - lowcyl + 1), hfd->virtsize / blocksize);
+	write_log (_T("Total blocks: %ld, Total disk blocks: %ld\n"), (long)(surfaces * spt * (highcyl - lowcyl + 1)), (long)(hfd->virtsize / blocksize));
 
 	if (hfd->drive_empty) {
 		write_log (_T("Empty drive\n"));

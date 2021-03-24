@@ -499,4 +499,8 @@ typedef int64_t off64_t;
 
 DWORD GetLastError(void);
 
+/* format string to print variables of type uaecptr instead of %p
+* since uacptr is really a 32bit int here. */
+#define FMTcPTR "08x"
+
 #endif // UAE_SYSDEPS_H

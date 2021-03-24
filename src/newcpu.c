@@ -40,7 +40,6 @@
 
 #define f_out write_log
 #define console_out write_log
-#define console_out_f write_log
 #ifdef JIT
 #include "compemu.h"
 #include <signal.h>
@@ -5048,11 +5047,11 @@ void m68k_dumpstate2 (uaecptr pc, uaecptr *nextpc)
 	int i, j;
 
 	for (i = 0; i < 8; i++){
-		console_out_f (_T("  D%d %08lX "), i, m68k_dreg (regs, i));
+		console_out_f (_T("  D%d %08lX "), i, (long)m68k_dreg (regs, i));
 		if ((i & 3) == 3) console_out_f (_T("\n"));
 	}
 	for (i = 0; i < 8; i++){
-		console_out_f (_T("  A%d %08lX "), i, m68k_areg (regs, i));
+		console_out_f (_T("  A%d %08lX "), i, (long)m68k_areg (regs, i));
 		if ((i & 3) == 3) console_out_f (_T("\n"));
 	}
 	if (regs.s == 0)
@@ -5114,7 +5113,7 @@ void m68k_dumpstate2 (uaecptr pc, uaecptr *nextpc)
 	if (pc != 0xffffffff) {
 		m68k_disasm (pc, nextpc, 1);
 		if (nextpc)
-			console_out_f (_T("Next PC: %08lx\n"), *nextpc);
+			console_out_f (_T("Next PC: %" FMTcPTR "\n"), *nextpc);
 	}
 }
 void m68k_dumpstate (uaecptr *nextpc)

@@ -740,6 +740,12 @@ void DX_Invalidate (int, int, int, int);
 void DX_SetPalette (int, int);
 void DX_SetPalette_vsync(void);
 void picasso96_alloc (TrapContext *);
+void picasso_allocatewritewatch (int gfxmemsize);
+void picasso_getwritewatch (void);
+void picasso_statusline (uae_u8 *dst);
+void picasso_invalidate (int x, int y, int w, int h);
+bool picasso_is_vram_dirty (uaecptr addr, int size);
+
 uae_u32 picasso_demux (uae_u32 arg, TrapContext *context);
 
 /* This structure describes the UAE-side framebuffer for the Picasso
@@ -762,6 +768,7 @@ void gfx_set_picasso_state (int on);
 uae_u8 *gfx_lock_picasso (bool, bool);
 void gfx_unlock_picasso (bool);
 void picasso_clip_mouse (int *, int *);
+void picasso96_alloc (TrapContext *ctx);
 
 extern int picasso_is_special;
 extern int picasso_is_special_read;

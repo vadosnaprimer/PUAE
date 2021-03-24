@@ -487,12 +487,12 @@ static uae_u32 REGPARAM2 expamemz3_bget (uaecptr addr)
 static uae_u32 REGPARAM2 expamemz3_wget (uaecptr addr)
 {
 	uae_u32 v = (expamemz3_bget (addr) << 8) | expamemz3_bget (addr + 1);
-	write_log (_T("warning: Z3 READ.W from address $%lx=%04x PC=%x\n"), addr, v & 0xffff, M68K_GETPC);
+	write_log (_T("warning: Z3 READ.W from address $%" FMTcPTR "=%04x PC=%x\n"), addr, v & 0xffff, M68K_GETPC);
 	return v;
 }
 static uae_u32 REGPARAM2 expamemz3_lget (uaecptr addr)
 {
-	write_log (_T("warning: Z3 READ.L from address $%lx PC=%x\n"), addr, M68K_GETPC);
+	write_log (_T("warning: Z3 READ.L from address $%" FMTcPTR " PC=%x\n"), addr, M68K_GETPC);
 	return (expamemz3_wget (addr) << 16) | expamemz3_wget (addr + 2);
 }
 static void REGPARAM2 expamemz3_bput (uaecptr addr, uae_u32 value)
@@ -516,7 +516,7 @@ static void REGPARAM2 expamemz3_lput (uaecptr addr, uae_u32 value)
 #ifdef JIT
 	special_mem |= S_WRITE;
 #endif
-	write_log (_T("warning: Z3 WRITE.L to address $%lx : value $%lx\n"), addr, value);
+	write_log (_T("warning: Z3 WRITE.L to address $%" FMTcPTR " : value $%lx\n"), addr, (long) value);
 }
 
 #ifdef CD32
@@ -859,9 +859,9 @@ static void expamem_map_fastcard_2 (int boardnum)
 	if (ab->start) {
 		map_banks (ab, ab->start >> 16, ab->allocated >> 16, 0);
 		if (ab->allocated <= 524288)
-		write_log (_T("%s: mapped @$%lx: %dKB fast memory\n"), ab->name, ab->start, ab->allocated >> 10);
+		write_log (_T("%s: mapped @$%lx: %dKB fast memory\n"), ab->name, (long)ab->start, ab->allocated >> 10);
 		else
-		write_log (_T("%s: mapped @$%lx: %dMB fast memory\n"), ab->name, ab->start, ab->allocated >> 20);
+		write_log (_T("%s: mapped @$%lx: %dMB fast memory\n"), ab->name, (long)ab->start, ab->allocated >> 20);
 	}
 }
 
@@ -941,7 +941,7 @@ static void expamem_map_filesys (void)
 
 	filesys_start = ((expamem_hi | (expamem_lo >> 4)) << 16);
 	map_banks (&filesys_bank, filesys_start >> 16, 1, 0);
-	write_log (_T("Filesystem: mapped memory @$%lx.\n"), filesys_start);
+	write_log (_T("Filesystem: mapped memory @$%lx.\n"), (long)filesys_start);
 	/* 68k code needs to know this. */
 	a = here ();
 	org (rtarea_base + RTAREA_FSBOARD);
@@ -1096,7 +1096,7 @@ static void expamem_map_gfxcard (void)
 	gfxmem_bank.start = (expamem_hi | (expamem_lo >> 4)) << 16;
 	if (gfxmem_bank.start) {
 		map_banks (&gfxmem_bank, gfxmem_bank.start >> 16, gfxmem_bank.allocated >> 16, gfxmem_bank.allocated);
-		write_log (_T("%sUAEGFX-card: mapped @$%p, %d MB RTG RAM\n"), currprefs.rtgmem_type ? _T("Z3") : _T("Z2"), gfxmem_bank.start, gfxmem_bank.allocated / 0x100000);
+		write_log (_T("%sUAEGFX-card: mapped @$%" FMTcPTR ", %d MB RTG RAM\n"), currprefs.rtgmem_type ? _T("Z3") : _T("Z2"), gfxmem_bank.start, gfxmem_bank.allocated / 0x100000);
 	}
 }
 
