@@ -289,7 +289,7 @@ static void doscsistatus (struct wd_state *wd, uae_u8 status)
 #endif
 }
 
-static void set_status__3 (struct wd_state *wd, uae_u8 status, int delay)
+static void set_status (struct wd_state *wd, uae_u8 status, int delay)
 {
 	wd->queue_index++;
 	if (wd->queue_index >= WD_STATUS_QUEUE)
@@ -298,9 +298,9 @@ static void set_status__3 (struct wd_state *wd, uae_u8 status, int delay)
 	wd->scsidelay_irq[wd->queue_index] = delay == 0 ? 1 : (delay <= 2 ? 2 : delay);
 }
 
-static void set_status (struct wd_state *wd, uae_u8 status)
+static void set_status__2 (struct wd_state *wd, uae_u8 status)
 {
-	set_status__3 (wd, status, 0);
+	set_status (wd, status, 0);
 }
 
 static uae_u32 gettc (struct wd_state *wd)
@@ -439,7 +439,7 @@ static bool wd_do_transfer_out (struct wd_state *wd)
 			// data missing, ask for more
 			wd->wd_phase = CSR_XFER_DONE | PHS_COMMAND;
 			setphase (wd, 0x30 + wd->scsi->offset);
-			set_status__3 (wd, wd->wd_phase, 1);
+			set_status (wd, wd->wd_phase, 1);
 			return false;
 		}
 		settc (wd, 0);
@@ -470,7 +470,7 @@ static bool wd_do_transfer_out (struct wd_state *wd)
 		if (wd->scsi->offset < wd->scsi->data_len) {
 			// data missing, ask for more
 			wd->wd_phase = CSR_XFER_DONE | (wd->scsi->direction < 0 ? PHS_DATA_IN : PHS_DATA_OUT);
-			set_status__3 (wd, wd->wd_phase, 10);
+			set_status (wd, wd->wd_phase, 10);
 			return false;
 		}
 		settc (wd, 0);
@@ -484,7 +484,7 @@ static bool wd_do_transfer_out (struct wd_state *wd)
 		setphase (wd, 0x47);
 	}
 	wd->wd_dataoffset = 0;
-	set_status__3 (wd, wd->wd_phase, wd->scsi->direction <= 0 ? 0 : 1);
+	set_status (wd, wd->wd_phase, wd->scsi->direction <= 0 ? 0 : 1);
 	wd->wd_busy = 0;
 	return true;
 }
@@ -499,7 +499,7 @@ static bool wd_do_transfer_in (struct wd_state *wd)
 		if (wd->scsi->offset < wd->scsi->data_len) {
 			// data missing, ask for more
 			wd->wd_phase = CSR_XFER_DONE | (wd->scsi->direction < 0 ? PHS_DATA_IN : PHS_DATA_OUT);
-			set_status__3 (wd, wd->wd_phase, 1);
+			set_status (wd, wd->wd_phase, 1);
 			return false;
 		}
 		if (gettc (wd) != 0) {
@@ -520,7 +520,7 @@ static bool wd_do_transfer_in (struct wd_state *wd)
 		wd->wd_selected = false;
 		scsi_start_transfer (wd->scsi);
 	}
-	set_status__3 (wd, wd->wd_phase, 1);
+	set_status (wd, wd->wd_phase, 1);
 	wd->scsi->direction = 0;
 	return true;
 }
@@ -534,7 +534,7 @@ static void wd_cmd_sel_xfer (struct wd_state *wd, bool atn)
 	tmp_tc = gettc (wd);
 	wd->scsi = wd->scsis[wd->wdregs[WD_DESTINATION_ID] & 7];
 	if (!wd->scsi) {
-		set_status__3 (wd, CSR_TIMEOUT, 0);
+		set_status (wd, CSR_TIMEOUT, 0);
 		wd->wdregs[WD_COMMAND_PHASE] = 0x00;
 #if WD33C93_DEBUG > 0
 		write_log (_T("* %s select and transfer%s, ID=%d: No device\n"),
@@ -583,9 +583,9 @@ static void wd_cmd_sel_xfer (struct wd_state *wd, bool atn)
 #if 0
 		if (wd->wdregs[WD_CONTROL] & CTL_IDI) {
 			wd->wd_phase = CSR_DISC;
-			set_status__3 (wd, wd->wd_phase, delay);
+			set_status (wd, wd->wd_phase, delay);
 			wd->wd_phase = CSR_RESEL;
-			set_status__3 (wd, wd->wd_phase, delay + 10);
+			set_status (wd, wd->wd_phase, delay + 10);
 			return;
 		}
 #endif
@@ -621,7 +621,7 @@ static void wd_cmd_sel_xfer (struct wd_state *wd, bool atn)
 					wd->wd_phase |= PHS_DATA_IN;
 				else
 					wd->wd_phase |= PHS_DATA_OUT;
-				set_status__3 (wd, wd->wd_phase, 1);
+				set_status (wd, wd->wd_phase, 1);
 				return;
 			}
 		}
@@ -633,13 +633,13 @@ static void wd_cmd_sel_xfer (struct wd_state *wd, bool atn)
 					if (wd->scsi->offset < wd->scsi->data_len) {
 						// buffer not completely retrieved?
 						wd->wd_phase = CSR_UNEXP | PHS_DATA_IN;
-						set_status__3 (wd, wd->wd_phase, 1);
+						set_status (wd, wd->wd_phase, 1);
 						return;
 					}
 					if (gettc (wd) > 0) {
 						// requested more data than was available.
 						wd->wd_phase = CSR_UNEXP | PHS_STATUS;
-						set_status__3 (wd, wd->wd_phase, 1);
+						set_status (wd, wd->wd_phase, 1);
 						return;
 					}
 					setphase (wd, 0x46);
@@ -649,7 +649,7 @@ static void wd_cmd_sel_xfer (struct wd_state *wd, bool atn)
 						if (wd->scsi->offset < wd->scsi->data_len) {
 							// not enough data?
 							wd->wd_phase = CSR_UNEXP | PHS_DATA_OUT;
-							set_status__3 (wd, wd->wd_phase, 1);
+							set_status (wd, wd->wd_phase, 1);
 							return;
 						}
 						// got all data -> execute it
@@ -663,14 +663,14 @@ static void wd_cmd_sel_xfer (struct wd_state *wd, bool atn)
 					wd->wd_phase |= PHS_DATA_IN;
 				else
 					wd->wd_phase |= PHS_DATA_OUT;
-				set_status__3 (wd, wd->wd_phase, 1);
+				set_status (wd, wd->wd_phase, 1);
 				return;
 			}
 		} else {
 			// TC > 0 but no data to transfer
 			if (gettc (wd)) {
 				wd->wd_phase = CSR_UNEXP | PHS_STATUS;
-				set_status__3 (wd, wd->wd_phase, 1);
+				set_status (wd, wd->wd_phase, 1);
 				return;
 			}
 			wd->wdregs[WD_COMMAND_PHASE] = 0x46;
@@ -690,14 +690,14 @@ static void wd_cmd_sel_xfer (struct wd_state *wd, bool atn)
 	if (!(wd->wdregs[WD_CONTROL] & CTL_EDI)) {
 		wd->wd_phase = CSR_SEL_XFER_DONE;
 		delay += 2;
-		set_status__3 (wd, wd->wd_phase, delay);
+		set_status (wd, wd->wd_phase, delay);
 		delay += 2;
 		wd->wd_phase = CSR_DISC;
-		set_status__3 (wd, wd->wd_phase, delay);
+		set_status (wd, wd->wd_phase, delay);
 	} else {
 		delay += 2;
 		wd->wd_phase = CSR_SEL_XFER_DONE;
-		set_status__3 (wd, wd->wd_phase, delay);
+		set_status (wd, wd->wd_phase, delay);
 	}
 	wd->wd_selected = 0;
 }
@@ -776,19 +776,19 @@ static void wd_cmd_sel (struct wd_state *wd, bool atn)
 #if WD33C93_DEBUG > 0
 		write_log (_T("%s no drive\n"), WD33C93);
 #endif
-		set_status__3 (wd, CSR_TIMEOUT, 1000);
+		set_status (wd, CSR_TIMEOUT, 1000);
 		return;
 	}
 	scsi_start_transfer (wd->scsi);
 	wd->wd_selected = true;
 	wd->scsi->message[0] = 0x80;
-	set_status__3 (wd, CSR_SELECT, 2);
+	set_status (wd, CSR_SELECT, 2);
 	if (atn) {
 		wd->wdregs[WD_COMMAND_PHASE] = 0x10;
-		set_status__3 (wd, CSR_SRV_REQ | PHS_MESS_OUT, 4);
+		set_status (wd, CSR_SRV_REQ | PHS_MESS_OUT, 4);
 	} else {
 		wd->wdregs[WD_COMMAND_PHASE] = 0x10; // connected as an initiator
-		set_status__3 (wd, CSR_SRV_REQ | PHS_COMMAND, 4);
+		set_status (wd, CSR_SRV_REQ | PHS_COMMAND, 4);
 	} 
 }
 
@@ -811,7 +811,7 @@ static void wd_cmd_reset (struct wd_state *wd, bool irq)
 	wd->auxstatus = 0;
 	wd->wd_data_avail = 0;
 	if (irq) {
-		set_status__3 (wd, (wd->wdregs[0] & 0x08) ? 1 : 0, 50);
+		set_status (wd, (wd->wdregs[0] & 0x08) ? 1 : 0, 50);
 	} else {
 		wd->dmac_dma = 0;
 		wd->dmac_istr = 0;
@@ -995,7 +995,7 @@ uae_u8 wdscsi_get (struct wd_state *wd)
 		if (wd->wdregs[WD_COMMAND_PHASE] == 0x10) {
 			wd->wdregs[WD_COMMAND_PHASE] = 0x11;
 			wd->wd_phase = CSR_SRV_REQ | PHS_MESS_OUT;
-			set_status__3 (wd, wd->wd_phase, 1);
+			set_status (wd, wd->wd_phase, 1);
 		}
 #endif
 	} else if (wd->sasr == WD_AUXILIARY_STATUS) {
@@ -1707,7 +1707,7 @@ static void *scsi_thread (void *wdv)
 			default:
 				wd->wd_busy = false;
 				write_log (_T("%s unimplemented/unknown command %02X\n"), WD33C93, cmd);
-				set_status__3 (wd, CSR_INVALID, 10);
+				set_status (wd, CSR_INVALID, 10);
 				break;
 			}
 		} else if (msg == 1) {
