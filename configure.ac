@@ -68,14 +68,6 @@ AC_ARG_ENABLE(net,
 	AS_HELP_STRING([--enable-net], [Enable network functionality (requires pcap)]),
 	[WANT_NET=$enableval],[])
 
-if test x$WANT_NET != xno ; then
-AC_CHECK_LIB(pcap, pcap_open_live, [HAVE_LIB_PCAP=yes], [HAVE_LIB_PCAP=no])
-AC_CHECK_HEADERS([pcap.h], HAVE_PCAP=yes, HAVE_PCAP=no)
-if test x$HAVE_PCAP = xno || test x$HAVE_LIB_PCAP = xno ; then
-AC_MSG_ERROR(pcap library not found!)
-fi
-fi
-
 dnl  Checks for header files.
 dnl
 AC_HEADER_DIRENT
@@ -199,6 +191,16 @@ AC_CHECK_LIB(dl, dlopen, [
   ],
 )
 
+net_enabled=0
+if test x$WANT_NET = xyes ; then
+ AC_CHECK_LIB(pcap, pcap_open_live, [HAVE_LIB_PCAP=yes], [HAVE_LIB_PCAP=no])
+ AC_CHECK_HEADERS([pcap.h], HAVE_PCAP=yes, HAVE_PCAP=no)
+ if test x$HAVE_PCAP = xno || test x$HAVE_LIB_PCAP = xno ; then
+  AC_MSG_ERROR(pcap library not found!)
+ fi
+ net_enabled=1
+fi
+
 AC_CONFIG_FILES([config.mak])
 AC_SUBST(gfx)
 AC_SUBST(gui)
@@ -208,7 +210,7 @@ AC_SUBST(os)
 AC_SUBST(sound)
 AC_SUBST(joystick)
 AC_SUBST(float)
-AC_SUBST(WANT_NET,1)
+AC_SUBST(net_enabled)
 
 AC_SUBST(CC)
 AC_SUBST(HOSTCC)
