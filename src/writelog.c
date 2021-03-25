@@ -40,7 +40,7 @@ void write_log (const char *fmt, ...)
 #endif
 }
 
-#ifdef JIT
+#if defined(JIT) && !defined(HOSTGEN)
 void jit_abort (const char *fmt, ...)
 {
     va_list ap;

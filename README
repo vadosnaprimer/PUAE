@@ -102,6 +102,15 @@ menu you can save/load savestates and toggle fullscreen mode with
 Note that PUAE sometimes gets stuck when selecting `exit` - therefore
 it's a good idea to quit fullscreen mode before doing that.
 
+About the JIT
+---------------------------------------------------
+
+The JIT featured by {P/FS/Win}UAE is mostly useless - unless you want
+to run an Amiga Workbench. Even though very fast, due to timing issues
+it's not very compatible to games, and it requires to use a CPU >= 68030
+and is only implemented for x86[_64] archs.
+Also compiling support for it increases build time by about 2x - so you
+are probably better off not enabling it.
 
 Bug Reports/Contact
 ---------------------------------------------------

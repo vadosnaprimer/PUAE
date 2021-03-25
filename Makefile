@@ -142,7 +142,7 @@ INC = -Isrc/include -Isrc
 TOOLS = src/tools/genblitter src/tools/genlinetoscr src/tools/build68k src/tools/gencomp src/tools/gencpu
 PROGS = uae $(TOOLS)
 GENFILES = src/blit.h src/blitfunc.h $(TOOLGEN_SRCS) $(CPUGEN_SRCS) $(CPUGEN_HDRS) \
-           src/linetoscr.c cpugen.stamp
+           src/linetoscr.c cpugen.stamp comptbl.stamp
 UAE_CFLAGS += -Wall -std=gnu99 -D_GNU_SOURCE -pipe -Wno-unused-variable -Wno-unused-but-set-variable -Wno-pointer-sign -Wno-unused-function
 UAE_LDFLAGS += -lz
 
@@ -226,6 +226,12 @@ OBJCPPFLAGS += -DUAENET -DA2065
 UAE_LDFLAGS += -lpcap
 endif
 
+ifeq ($(WANT_JIT), 1)
+OBJCPPFLAGS += -DJIT
+CPU_SRCS += src/compemu_support.c src/compemu_fpp.c
+CPUGEN_SRCS += src/compstbl.c src/compemu.c
+endif
+
 LDFLAGS = $(GUI_LDFLAGS) $(UAE_LDFLAGS) $(USER_LDFLAGS)
 CFLAGS = $(USER_CFLAGS) $(UAE_CFLAGS)
 CPPFLAGS = $(USER_CPPFLAGS) $(OBJCPPFLAGS) $(UAE_CPPFLAGS)
@@ -264,6 +270,8 @@ src/tools/readcpu.c: src/readcpu.c
 src/tools/build68k.c: src/build68k.c
 	ln -sf ../build68k.c src/tools/
 
+src/tools/writelog.o: CPPFLAGS+=-DHOSTGEN
+
 src/tools/genblitter: src/tools/genblitter.o src/tools/blitops.o src/tools/writelog.o
 	$(CC) -O0 -g0 $^ -o $@
 src/tools/build68k:  src/tools/build68k.o src/tools/writelog.o
@@ -274,11 +282,13 @@ src/tools/gencomp: src/tools/gencomp.o src/tools/readcpu.o src/tools/missing.o s
 	$(CC) -O0 -g0 $^ -o $@
 src/tools/gencpu: src/tools/gencpu.o src/tools/readcpu.o src/tools/cpudefs.o src/tools/missing.o src/tools/writelog.o
 	$(CC) -O0 -g0 $^ -o $@
-src/comptbl.h: src/tools/gencomp
-src/compstbl.c: src/tools/gencomp
-	src/tools/gencomp
-src/compemu.c: src/tools/gencomp
-$(CPUGEN_HDRS) $(CPUGEN_SRCS): cpugen.stamp
+comptbl.stamp: src/tools/gencomp
+	cd src && ./tools/gencomp && touch ../comptbl.stamp && cd ..
+src/comptbl.h: comptbl.stamp
+src/compstbl.c: comptbl.stamp
+src/compemu.c: comptbl.stamp
+
+$(CPUGEN_HDRS) $(CPUGEN_SRCS): cpugen.stamp src/comptbl.h
 cpugen.stamp: src/tools/gencpu
 	cd src && ./tools/gencpu && touch ../cpugen.stamp && cd ..
 

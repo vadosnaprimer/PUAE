@@ -201,6 +201,12 @@ if test x$WANT_NET = xyes ; then
  net_enabled=1
 fi
 
+jit_enabled=0
+if test x$WANT_JIT = xyes ; then
+ AC_CHECK_HEADERS([execinfo.h])
+ jit_enabled=1
+fi
+
 AC_CONFIG_FILES([config.mak])
 AC_SUBST(gfx)
 AC_SUBST(gui)
@@ -211,6 +217,7 @@ AC_SUBST(sound)
 AC_SUBST(joystick)
 AC_SUBST(float)
 AC_SUBST(net_enabled)
+AC_SUBST(jit_enabled)
 
 AC_SUBST(CC)
 AC_SUBST(HOSTCC)

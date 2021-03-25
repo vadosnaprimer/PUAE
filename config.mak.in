@@ -9,6 +9,7 @@ SOUND_BACKEND = sd-@sound@
 JOYSTICK_BACKEND = jd-@joystick@
 TARGET = unix
 WANT_NET = @net_enabled@
+WANT_JIT = @jit_enabled@
 
 CC=@CC@
 HOSTCC=@HOSTCC@

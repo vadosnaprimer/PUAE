@@ -1737,7 +1737,9 @@ STATIC_INLINE void raw_inc_sp(int off)
 #define __USE_GNU
 #endif
 #include <signal.h>
+#ifdef HAVE_EXECINFO_H
 #include <execinfo.h>
+#endif
 
 #define SIG_READ 1
 #define SIG_WRITE 2
@@ -2104,6 +2106,7 @@ static void vec(int sig, siginfo_t* info, void* _ct)
 	write_log(_T("[JIT] content of ESP: 0x%08x\n"), (uaecptr)ctx->uc_mcontext.gregs[REG_ESP]);
 #endif // __x86_64__
 
+#ifdef HAVE_EXECINFO_H
 	// Lets print a backtrace:
 	void *trace[32];
 	char **messages = (char **)NULL;
@@ -2119,6 +2122,7 @@ static void vec(int sig, siginfo_t* info, void* _ct)
 			write_log(_T("[JIT] %02d : %s\n"), i, messages[i]);
 		free(messages);
 	} else
+#endif
 		write_log(_T("[JIT] No backtrace available!\n"));
 
 	// Go back to find a good start for dumping/disassembling
