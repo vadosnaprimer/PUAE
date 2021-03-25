@@ -167,6 +167,7 @@ ifeq ($(THREAD_BACKEND),td-posix)
 	UAE_CPPFLAGS += -DTHREAD_POSIX
 else
 ifeq ($(THREAD_BACKEND),td-sdl)
+	UAE_LDFLAGS += -lSDL
 	UAE_CPPFLAGS += -DTHREAD_SDL
 endif
 endif
