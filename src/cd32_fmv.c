@@ -1,11 +1,11 @@
 /*
- * UAE - The Un*x Amiga Emulator
- *
- * CD32 FMV cartridge
- *
- * Copyright 2008-2010 Toni Wilen
- *
- */
+* UAE - The Un*x Amiga Emulator
+*
+* CD32 FMV cartridge
+*
+* Copyright 2008-2010 Toni Wilen
+*
+*/
 
 #include "sysconfig.h"
 #include "sysdeps.h"
@@ -64,13 +64,12 @@
 
 static int fmv_mask;
 static uae_u8 *rom;
-static uae_u32 fmv_rom_size = 262144;
+static int fmv_rom_size = 262144;
 static uaecptr fmv_start = 0x00200000;
-static uae_u32 fmv_size = 1048576;
+static int fmv_size = 1048576;
 
 static uae_u16 l64111regs[32];
-static uae_u16 l64111intmask1, l64111intmask2, l64111intstatus1;
-// REMOVEME: static uae_u16 l64111intstatus2;
+static uae_u16 l64111intmask1, l64111intmask2, l64111intstatus1, l64111intstatus2;
 static uae_u16 io_reg;
 
 static int isdebug (uaecptr addr)
