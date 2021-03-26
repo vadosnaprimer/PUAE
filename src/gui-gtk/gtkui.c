@@ -567,7 +567,7 @@ static void update_buttons (void)
 
 		gtk_widget_set_sensitive (hdpanel,     !running && !paused);
 		gtk_widget_set_sensitive (memorypanel, !running && !paused);
-		gtk_widget_set_sensitive (rom_change_widget, !running && !paused);
+//		gtk_widget_set_sensitive (rom_change_widget, !running && !paused);
 //		gtk_widget_set_sensitive (sstate_change_widget, !running && !paused);
 
 		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (pause_uae_widget), paused);
