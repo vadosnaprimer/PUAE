@@ -1,15 +1,15 @@
-AC_PREREQ(2.55)
-AC_INIT(PUAE, 2.8.1, rofl0r@github, puae)
+AC_PREREQ([2.71])
+AC_INIT([PUAE],[2.8.1],[rofl0r@github],[puae])
 
 AC_CONFIG_MACRO_DIR([m4])
-AC_CONFIG_HEADER([src/sysconfig.h])
+AC_CONFIG_HEADERS([src/sysconfig.h])
 
 AC_PROG_CC
 AC_LANG(C)
 
 AC_CANONICAL_TARGET
-AC_AIX
-AC_ISC_POSIX
+AC_USE_SYSTEM_EXTENSIONS
+AC_SEARCH_LIBS([strerror],[cposix])
 
 dnl commit version
 dnl
@@ -71,7 +71,15 @@ AC_ARG_ENABLE(net,
 dnl  Checks for header files.
 dnl
 AC_HEADER_DIRENT
-AC_HEADER_STDC
+m4_warn([obsolete],
+[The preprocessor macro `STDC_HEADERS' is obsolete.
+  Except in unusual embedded environments, you can safely include all
+  ISO C90 headers unconditionally.])dnl
+# Autoupdate added the next two lines to ensure that your configure
+# script's behavior did not change.  They are probably safe to remove.
+AC_CHECK_INCLUDES_DEFAULT
+AC_PROG_EGREP
+
 AC_CHECK_HEADERS([fcntl.h sys/ioctl.h sys/time.h utime.h])
 AC_CHECK_HEADERS([values.h ncurses.h curses.h sys/termios.h])
 AC_CHECK_HEADERS([sys/stat.h sys/ipc.h sys/shm.h sys/mman.h])
@@ -98,7 +106,20 @@ AC_TYPE_MODE_T
 AC_TYPE_OFF_T
 AC_TYPE_SIZE_T
 AC_STRUCT_ST_BLOCKS
-AC_HEADER_TIME
+m4_warn([obsolete],
+[Update your code to rely only on HAVE_SYS_TIME_H,
+then remove this warning and the obsolete code below it.
+All current systems provide time.h; it need not be checked for.
+Not all systems provide sys/time.h, but those that do, all allow
+you to include it and time.h simultaneously.])dnl
+AC_CHECK_HEADERS_ONCE([sys/time.h])
+# Obsolete code to be removed.
+if test $ac_cv_header_sys_time_h = yes; then
+  AC_DEFINE([TIME_WITH_SYS_TIME],[1],[Define to 1 if you can safely include both <sys/time.h>
+	     and <time.h>.  This macro is obsolete.])
+fi
+# End of obsolete code.
+
 AC_STRUCT_TM
 AC_C_VOLATILE
 AC_C_BIGENDIAN
@@ -117,7 +138,19 @@ fi
 dnl  Checks for library functions.
 dnl
 AC_FUNC_MEMCMP
-AC_TYPE_SIGNAL
+m4_warn([obsolete],
+[your code may safely assume C89 semantics that RETSIGTYPE is void.
+Remove this warning and the `AC_CACHE_CHECK' when you adjust the code.])dnl
+AC_CACHE_CHECK([return type of signal handlers],[ac_cv_type_signal],[AC_COMPILE_IFELSE(
+[AC_LANG_PROGRAM([#include <sys/types.h>
+#include <signal.h>
+],
+		 [return *(signal (0, 0)) (0) == 1;])],
+		   [ac_cv_type_signal=int],
+		   [ac_cv_type_signal=void])])
+AC_DEFINE_UNQUOTED([RETSIGTYPE],[$ac_cv_type_signal],[Define as the return type of signal handlers
+		    (`int' or `void').])
+
 AC_FUNC_UTIME_NULL
 AC_CHECK_FUNCS(gettimeofday sigaction)
 AC_CHECK_FUNCS(select strerror isnan isinf setitimer alarm sync)
@@ -130,26 +163,26 @@ AC_CHECK_FUNCS(localtime_r timegm gmtime_r)
 AC_SYS_LARGEFILE
 
 AC_MSG_CHECKING(for bswap_16)
-AC_TRY_LINK([
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[
   #if HAVE_BYTESWAP_H
   # include <byteswap.h>
   #endif
-],[
+]], [[
   bswap_16 (0x12);
-],[
+]])],[
   AC_DEFINE(HAVE_BSWAP_16, 1, [Define to 1 if you have the 'bswap_16' function.])
   AC_MSG_RESULT(yes)
 ],[
   AC_MSG_RESULT(no)
 ])
 AC_MSG_CHECKING(for bswap_32)
-AC_TRY_LINK([
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[
   #if HAVE_BYTESWAP_H
   # include <byteswap.h>
   #endif
-],[
+]], [[
   bswap_32 (0x1234);
-],[
+]])],[
   AC_DEFINE(HAVE_BSWAP_32, 1, [Define to 1 if you have the 'bswap_32' function.])
   AC_MSG_RESULT(yes)
 ],[

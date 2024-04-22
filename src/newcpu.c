@@ -1410,7 +1410,7 @@ void init_m68k (void)
 }
 
 struct regstruct regs, mmu_backup_regs;
-struct flag_struct regflags;
+extern struct flag_struct regflags;
 static long int m68kpc_offset;
 
 #if 0
