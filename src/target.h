@@ -1,7 +1,26 @@
-#if defined(TARGET_AMIGA)
-#include "targets/t-amiga.h"
-#elif defined(TARGET_BEOS)
-#include "targets/t-beos.h"
-#else
-#include "targets/t-unix.h"
+ /*
+  * UAE - The Un*x Amiga Emulator
+  *
+  * Target specific stuff, *nix version
+  *
+  * Copyright 1997 Bernd Schmidt
+  */
+
+#define TARGET_NAME "unix"
+
+#define TARGET_ROM_PATH         "~/"
+#define TARGET_FLOPPY_PATH      "~/"
+#define TARGET_HARDFILE_PATH    "~/"
+#define TARGET_SAVESTATE_PATH   "~/"
+
+#ifndef OPTIONSFILENAME
+# ifdef __APPLE__
+#  define OPTIONSFILENAME "default.uaerc"
+# else
+#  define OPTIONSFILENAME ".uaerc"
+# endif
 #endif
+#define OPTIONS_IN_HOME
+
+#define DEFPRTNAME "lpr"
+#define DEFSERNAME "/dev/ttyS1"

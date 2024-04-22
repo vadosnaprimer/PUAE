@@ -172,33 +172,6 @@ static void (*x2_do_cycles)(unsigned long);
 static void (*x2_do_cycles_pre)(unsigned long);
 static void (*x2_do_cycles_post)(unsigned long, uae_u32);
 
-uae_u32 (*x_prefetch)(int);
-uae_u32 (*x_next_iword)(void);
-uae_u32 (*x_next_ilong)(void);
-uae_u32 (*x_get_ilong)(int);
-uae_u32 (*x_get_iword)(int);
-uae_u32 (*x_get_ibyte)(int);
-uae_u32 (*x_get_long)(uaecptr);
-uae_u32 (*x_get_word)(uaecptr);
-uae_u32 (*x_get_byte)(uaecptr);
-void (*x_put_long)(uaecptr,uae_u32);
-void (*x_put_word)(uaecptr,uae_u32);
-void (*x_put_byte)(uaecptr,uae_u32);
-
-uae_u32 (*x_cp_next_iword)(void);
-uae_u32 (*x_cp_next_ilong)(void);
-uae_u32 (*x_cp_get_long)(uaecptr);
-uae_u32 (*x_cp_get_word)(uaecptr);
-uae_u32 (*x_cp_get_byte)(uaecptr);
-void (*x_cp_put_long)(uaecptr,uae_u32);
-void (*x_cp_put_word)(uaecptr,uae_u32);
-void (*x_cp_put_byte)(uaecptr,uae_u32);
-uae_u32 (REGPARAM3 *x_cp_get_disp_ea_020)(uae_u32 base, int idx) REGPARAM;
-
-void (*x_do_cycles)(unsigned long);
-void (*x_do_cycles_pre)(unsigned long);
-void (*x_do_cycles_post)(unsigned long, uae_u32);
-
 static void set_x_cp_funcs(void)
 {
 	x_cp_put_long = x_put_long;
