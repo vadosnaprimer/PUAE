@@ -152,7 +152,7 @@ PROGS = uae $(TOOLS)
 GENFILES = src/blit.h src/blitfunc.h $(TOOLGEN_SRCS) $(CPUGEN_SRCS) $(CPUGEN_HDRS) \
            src/linetoscr.c cpugen.stamp $(GENH)
 CFLAGS += -Wall -std=gnu99 -D_GNU_SOURCE -pipe -Wno-unused-variable -Wno-unused-but-set-variable -O0 -g3
-LDFLAGS = -lz -lSDL -lSDL_ttf -lasound
+LDFLAGS = -lz -lSDL -lSDL_ttf -lasound -lm
 
 AR      = $(CROSS_COMPILE)ar
 RANLIB  = $(CROSS_COMPILE)ranlib
