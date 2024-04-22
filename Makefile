@@ -164,17 +164,17 @@ all: src/uae
 src/target.h: src/targets/t-$(TARGET).h
 	cp $< $@
 src/machdep/machdep.h: src/$(MACHINE_BACKEND)/machdep.h
-	ln -sf $(MACHINE_BACKEND) src/machdep
+	ln -sfr $(MACHINE_BACKEND) src/machdep
 src/gfxdep/gfx.h: src/$(GFX_BACKEND)/gfx.h
-	ln -sf $(GFX_BACKEND) src/gfxdep
+	ln -sfr $(GFX_BACKEND) src/gfxdep
 src/osdep/memory_uae.h: src/$(OS_BACKEND)/memory_uae.h
-	ln -sf $(OS_BACKEND) src/osdep
+	ln -sfr $(OS_BACKEND) src/osdep
 src/threaddep/thread.h: src/$(THREAD_BACKEND)/thread.h
-	ln -sf $(THREAD_BACKEND) src/threaddep
+	ln -sfr $(THREAD_BACKEND) src/threaddep
 src/sounddep/sound.h: src/$(SOUND_BACKEND)/sound.h
-	ln -sf $(SOUND_BACKEND) src/sounddep
+	ln -sfr $(SOUND_BACKEND) src/sounddep
 src/md-fpp.h: src/include/fpp-ieee.h
-	ln -sf include/fpp-ieee.h $@
+	ln -sfr include/fpp-ieee.h $@
 
 src/blit.h: src/tools/genblitter
 	src/tools/genblitter i > src/blit.h
