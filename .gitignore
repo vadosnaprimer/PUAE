@@ -36,6 +36,9 @@ src/blit*
 src/comp*
 src/cpuemu_*
 src/linetoscr.c
+src/cpustbl.c
+src/cputbl.h
+src/threaddep/td-posix
 
 # Executables
 src/make_hdf
@@ -70,3 +73,9 @@ ui_puae_mainwindow.h
 kick.rom
 kick_ext.rom
 df0.adz
+
+
+config.log
+config.mak
+config.status
+cpugen.stamp
