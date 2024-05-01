@@ -17,7 +17,8 @@
 			"args": [
 				"CXXFLAGS=\"-Og -g\"",
 				"--with-threads=posix",
-				"--with-gui=none"
+				"--with-gui=none",
+				"--with-sound=alsa"
 			],
 			"problemMatcher": []
 		},
